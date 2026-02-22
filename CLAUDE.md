@@ -28,7 +28,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `middleware.ts` at project root protects all routes except `/auth/*` and `/api/auth/*`
 - JWT session duration: 30 days with sliding window refresh
 
-**Required env vars:** `AUTH_SECRET`, `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET`, `AUTHORIZED_EMAIL`, `POSTGRES_URL`, `POSTGRES_URL_NON_POOLING`
+**Required env vars:** `AUTH_SECRET`, `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET`, `AUTHORIZED_EMAIL`, `fast_track_DATABASE_URL_UNPOOLED`
 
 **Key auth files:** `src/lib/auth.ts`, `src/middleware.ts`, `src/app/auth/signin/page.tsx`, `src/app/api/auth/[...nextauth]/route.ts`
 

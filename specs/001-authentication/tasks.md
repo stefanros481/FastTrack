@@ -25,7 +25,7 @@ and testing of each story.
 - [x] T001 Bootstrap Next.js project: `npx create-next-app@latest fasttrack --typescript --tailwind --app --src-dir --import-alias "@/*"`
 - [x] T002 Install auth and ORM dependencies: `npm install next-auth@beta prisma @prisma/client`
 - [x] T003 [P] Create `prisma/schema.prisma` with `User` and `UserSettings` models per `specs/001-authentication/data-model.md`
-- [x] T004 [P] Create `.env.local` with all required env vars: `AUTH_SECRET`, `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET`, `AUTHORIZED_EMAIL`, `POSTGRES_URL`, `POSTGRES_URL_NON_POOLING`
+- [x] T004 [P] Create `.env.local` with all required env vars: `AUTH_SECRET`, `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET`, `AUTHORIZED_EMAIL`, `POSTGRES_URL`, `fast_track_DATABASE_URL_UNPOOLED`
 - [ ] T005 Run initial Prisma migration: `npx prisma migrate dev --name init-auth`
 
 ---

@@ -16,8 +16,7 @@ cp .env.local.example .env.local
 | `AUTH_GOOGLE_ID` | [Google Cloud Console](https://console.cloud.google.com) → APIs & Services → Credentials → OAuth 2.0 Client ID |
 | `AUTH_GOOGLE_SECRET` | Same as above |
 | `AUTHORIZED_EMAIL` | Your Google account email — the only address allowed to sign in |
-| `POSTGRES_URL` | Vercel Postgres dashboard → your database → `.env.local` tab |
-| `POSTGRES_URL_NON_POOLING` | Same as above (direct connection, used for migrations) |
+| `fast_track_DATABASE_URL_UNPOOLED` | Vercel Postgres dashboard → your database → `.env.local` tab (the `UNPOOLED` connection string) |
 
 **Google OAuth redirect URIs** — add these in Google Cloud Console under your OAuth client:
 - Development: `http://localhost:3000/api/auth/callback/google`
@@ -49,10 +48,9 @@ Set the following environment variables in your Vercel project settings (**Setti
 | `AUTH_GOOGLE_ID` | From Google Cloud Console |
 | `AUTH_GOOGLE_SECRET` | From Google Cloud Console |
 | `AUTHORIZED_EMAIL` | Your Google account email |
-| `POSTGRES_URL` | Auto-populated if you link a Vercel Postgres database |
-| `POSTGRES_URL_NON_POOLING` | Auto-populated if you link a Vercel Postgres database |
+| `fast_track_DATABASE_URL_UNPOOLED` | Auto-populated when you link a Vercel Postgres database to the project |
 
-> **Tip**: If you create a Vercel Postgres database and link it to your project, `POSTGRES_URL` and `POSTGRES_URL_NON_POOLING` are added automatically.
+> **Tip**: If you link a Vercel Postgres database to your project, `fast_track_DATABASE_URL_UNPOOLED` (and other `fast_track_*` vars) are added automatically.
 
 > **Security**: `AUTHORIZED_EMAIL` must **never** be prefixed with `NEXT_PUBLIC_` — it is server-side only.
 

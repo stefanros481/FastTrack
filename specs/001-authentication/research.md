@@ -100,7 +100,7 @@ if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma
 
 ## Decision 7: Vercel Postgres Connection Strings
 
-**Decision**: `POSTGRES_URL` (pooled) for runtime queries; `POSTGRES_URL_NON_POOLING` as `directUrl` in `prisma/schema.prisma` for migrations.
+**Decision**: `POSTGRES_URL` (pooled) for runtime queries; `fast_track_DATABASE_URL_UNPOOLED` as `directUrl` in `prisma/schema.prisma` for migrations.
 
 **Rationale**: Vercel Postgres uses PgBouncer for connection pooling. Prisma migrations require a direct (non-pooled) connection. The `directUrl` field in the Prisma schema handles this transparently — no adapter needed.
 

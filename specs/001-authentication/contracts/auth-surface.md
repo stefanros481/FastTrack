@@ -127,7 +127,7 @@ All callers within the auth system depend on these being present at runtime:
 | `AUTH_GOOGLE_SECRET` | Yes | Google OAuth client secret |
 | `AUTHORIZED_EMAIL` | Yes | The single email allowed to sign in. Server-side only — MUST NOT be `NEXT_PUBLIC_` |
 | `POSTGRES_URL` | Yes | Vercel Postgres pooled connection (runtime) |
-| `POSTGRES_URL_NON_POOLING` | Yes | Direct connection for Prisma migrations |
+| `fast_track_DATABASE_URL_UNPOOLED` | Yes | Direct connection for Prisma migrations |
 
 **Fail-closed guarantee**: If `AUTHORIZED_EMAIL` is not set, `user.email !== undefined`
 will be `false` for the comparison, which means **no email will ever match** and all
