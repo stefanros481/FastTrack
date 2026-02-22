@@ -1,0 +1,6 @@
+<svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Indigo rounded-square background -->
+  <rect width="32" height="32" rx="7" fill="#4f46e5"/>
+  <!-- White lightning bolt -->
+  <path d="M20 2 L11 18 L17 18 L12 30 L21 14 L15 14 Z" fill="white"/>
+</svg>
