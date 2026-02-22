@@ -1,0 +1,32 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider  = "postgresql"
+  directUrl = env("POSTGRES_URL_NON_POOLING")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  image     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  settings UserSettings?
+}
+
+model UserSettings {
+  id                 String  @id @default(cuid())
+  defaultGoalMinutes Int?
+  reminderEnabled    Boolean @default(false)
+  reminderTime       String?
+  maxDurationMinutes Int?
+  theme              String  @default("dark")
+
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+}

@@ -86,3 +86,10 @@ Reference PRD: `docs/FastTrack_PRD_v2.md`
 
 - Do not add version fields to `docker-compose` files
 - Use `npm` / `npx` for this Next.js project (not `uv` — that's for Python projects)
+
+## Active Technologies
+- TypeScript 5 / Node.js 18+ + Next.js 14+ (App Router), Auth.js v5 (next-auth@beta), Prisma, Vercel Postgres (001-authentication)
+- Vercel Postgres (PostgreSQL) — User and UserSettings tables (001-authentication)
+
+## Recent Changes
+- 001-authentication: Added TypeScript 5 / Node.js 18+ + Next.js 14+ (App Router), Auth.js v5 (next-auth@beta), Prisma, Vercel Postgres
