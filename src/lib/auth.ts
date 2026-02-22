@@ -6,19 +6,19 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
   ...authConfig,
   callbacks: {
     ...authConfig.callbacks,
-    async signIn({ user, profile }) {
+    async signIn({ user }) {
       if (user.email !== process.env.AUTHORIZED_EMAIL) return false;
 
       await prisma.user.upsert({
         where: { email: user.email },
         update: {
-          name: profile?.name ?? user.name,
-          image: profile?.image ?? user.image,
+          name: user.name,
+          image: user.image,
         },
         create: {
           email: user.email!,
-          name: profile?.name ?? user.name,
-          image: profile?.image ?? user.image,
+          name: user.name,
+          image: user.image,
           settings: { create: {} },
         },
       });
