@@ -8,4 +8,7 @@ export default defineConfig({
   migrations: {
     path: "prisma/migrations",
   },
+  datasource: {
+    url: process.env["fast_track_DATABASE_URL_UNPOOLED"]!,
+  },
 });
