@@ -8,6 +8,12 @@ import {
   noteSchema,
   deleteSessionSchema,
 } from "@/lib/validators";
+import {
+  startOfDay,
+  differenceInCalendarDays,
+  startOfISOWeek,
+  startOfMonth,
+} from "date-fns";
 
 async function getUserId(): Promise<string> {
   const session = await auth();
@@ -190,12 +196,21 @@ export async function updateNote(
   return { success: true };
 }
 
+export interface PeriodSummary {
+  count: number;
+  totalHours: number;
+}
+
 export interface FastingStats {
   totalHours: number;
   avgHours: number;
   longestFast: number;
   goalsMet: number;
   totalFasts: number;
+  currentStreak: number;
+  bestStreak: number;
+  thisWeek: PeriodSummary;
+  thisMonth: PeriodSummary;
 }
 
 export async function getStats(): Promise<FastingStats | null> {
@@ -222,5 +237,69 @@ export async function getStats(): Promise<FastingStats | null> {
     return durationMinutes >= s.goalMinutes;
   }).length;
 
-  return { totalHours, avgHours, longestFast, goalsMet, totalFasts: sessions.length };
+  // Streak computation
+  const today = startOfDay(new Date());
+  const uniqueDates = [
+    ...new Set(
+      sessions
+        .map((s) => startOfDay(s.endedAt!).getTime())
+    ),
+  ]
+    .sort((a, b) => b - a)
+    .map((t) => new Date(t));
+
+  let currentStreak = 0;
+  if (uniqueDates.length > 0) {
+    const daysSinceLatest = differenceInCalendarDays(today, uniqueDates[0]);
+    if (daysSinceLatest === 0) {
+      currentStreak = 1;
+      for (let i = 1; i < uniqueDates.length; i++) {
+        if (differenceInCalendarDays(uniqueDates[i - 1], uniqueDates[i]) === 1) {
+          currentStreak++;
+        } else {
+          break;
+        }
+      }
+    }
+  }
+
+  let bestStreak = 0;
+  if (uniqueDates.length > 0) {
+    let streak = 1;
+    for (let i = 1; i < uniqueDates.length; i++) {
+      if (differenceInCalendarDays(uniqueDates[i - 1], uniqueDates[i]) === 1) {
+        streak++;
+      } else {
+        bestStreak = Math.max(bestStreak, streak);
+        streak = 1;
+      }
+    }
+    bestStreak = Math.max(bestStreak, streak);
+  }
+
+  // Period summaries
+  const weekStart = startOfISOWeek(new Date());
+  const monthStart = startOfMonth(new Date());
+
+  const weekSessions = sessions.filter((s) => s.endedAt! >= weekStart);
+  const monthSessions = sessions.filter((s) => s.endedAt! >= monthStart);
+
+  const sumHours = (arr: typeof sessions) =>
+    arr.reduce(
+      (sum, s) =>
+        sum + (s.endedAt!.getTime() - s.startedAt.getTime()) / 3600000,
+      0
+    );
+
+  return {
+    totalHours,
+    avgHours,
+    longestFast,
+    goalsMet,
+    totalFasts: sessions.length,
+    currentStreak,
+    bestStreak,
+    thisWeek: { count: weekSessions.length, totalHours: Math.round(sumHours(weekSessions) * 10) / 10 },
+    thisMonth: { count: monthSessions.length, totalHours: Math.round(sumHours(monthSessions) * 10) / 10 },
+  };
 }

@@ -96,6 +96,8 @@ Reference PRD: `docs/FastTrack_PRD_v2.md`
 - Vercel Postgres (PostgreSQL) via Prisma — `notes` field already exists on `FastingSession` model as `String?` (004-session-notes)
 - TypeScript 5 / Node.js 18+ + Next.js 16 (App Router), React 19, Tailwind CSS v4, Prisma 7, Zod 4, date-fns 4, Lucide React, Radix UI (006-dashboard-history)
 - Vercel Postgres (PostgreSQL) via Prisma — `FastingSession` model (006-dashboard-history)
+- TypeScript 5 / Node.js 18+ / Next.js 16 (App Router) + React 19, Prisma 7, date-fns 4, Tailwind CSS v4, Lucide React, Zod 4 (007-dashboard-statistics)
+- Vercel Postgres (PostgreSQL) via Prisma — existing `FastingSession` model (007-dashboard-statistics)
 
 ## Recent Changes
 - 001-authentication: Added TypeScript 5 / Node.js 18+ + Next.js 14+ (App Router), Auth.js v5 (next-auth@beta), Prisma, Vercel Postgres

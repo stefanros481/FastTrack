@@ -14,9 +14,6 @@ import {
   Brain,
   Moon,
   BarChart3,
-  TrendingUp,
-  Clock,
-  Award,
   Sun,
   Monitor,
 } from "lucide-react";
@@ -26,6 +23,7 @@ import { updateTheme } from "@/app/actions/settings";
 import { useTheme } from "@/components/ThemeProvider";
 import HistoryList from "@/components/HistoryList";
 import NoteInput from "@/components/NoteInput";
+import StatsCards from "@/components/StatsCards";
 
 // --- Constants ---
 const FASTING_PROTOCOLS = [
@@ -347,54 +345,7 @@ export default function FastingTimer({ activeFast, stats }: Props) {
         {/* --- DASHBOARD VIEW --- */}
         {view === "dashboard" && (
           <div className="space-y-6 motion-safe:animate-fade-in">
-            {!stats ? (
-              <div className="text-center py-20 text-slate-500 bg-white dark:bg-slate-900 rounded-[3rem] border border-dashed border-slate-300 dark:border-slate-800">
-                <BarChart3 size={48} className="mx-auto mb-4 opacity-10" />
-                <p>Log a fast to unlock insights</p>
-              </div>
-            ) : (
-              <>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="bg-white dark:bg-slate-900 p-5 rounded-[2rem] border border-slate-100 dark:border-slate-800">
-                    <TrendingUp className="text-indigo-600 mb-2" size={20} />
-                    <div className="text-2xl font-bold">
-                      {stats.avgHours.toFixed(1)}h
-                    </div>
-                    <div className="text-xs text-slate-500 font-medium">
-                      Avg. Duration
-                    </div>
-                  </div>
-                  <div className="bg-white dark:bg-slate-900 p-5 rounded-[2rem] border border-slate-100 dark:border-slate-800">
-                    <Award className="text-amber-500 mb-2" size={20} />
-                    <div className="text-2xl font-bold">
-                      {stats.longestFast.toFixed(1)}h
-                    </div>
-                    <div className="text-xs text-slate-500 font-medium">
-                      Personal Best
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-indigo-600 rounded-[2.5rem] p-6 text-white shadow-xl shadow-indigo-200 dark:shadow-none">
-                  <div className="flex justify-between items-start mb-4">
-                    <div>
-                      <div className="text-indigo-100 text-sm font-medium">
-                        Lifetime Fasting
-                      </div>
-                      <div className="text-4xl font-bold">
-                        {Math.floor(stats.totalHours)}h
-                      </div>
-                    </div>
-                    <div className="bg-white/20 p-2 rounded-xl">
-                      <Clock size={24} />
-                    </div>
-                  </div>
-                  <p className="text-xs text-indigo-100 leading-relaxed">
-                    Great work! You have logged {stats.totalFasts} fasts so far.
-                  </p>
-                </div>
-              </>
-            )}
+            <StatsCards stats={stats} />
           </div>
         )}
 
