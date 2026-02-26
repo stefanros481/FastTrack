@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "Bash(bunx shadcn@latest init -d)",
-      "Bash(bunx shadcn@latest add calendar popover button -y)"
+      "Bash(bunx shadcn@latest add calendar popover button -y)",
+      "Bash(git fetch --all --prune)"
     ]
   }
 }

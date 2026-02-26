@@ -1,11 +1,12 @@
 "use client";
 
 import { useState, useEffect, useTransition } from "react";
-import { X } from "lucide-react";
-import { updateSession } from "@/app/actions/fasting";
+import { X, Trash2 } from "lucide-react";
+import { updateSession, deleteSession } from "@/app/actions/fasting";
 import { sessionEditSchema } from "@/lib/validators";
 import { DateTimePicker } from "@/components/ui/date-time-picker";
 import NoteInput from "@/components/NoteInput";
+import DeleteConfirmation from "@/components/DeleteConfirmation";
 
 interface SessionData {
   id: string;
@@ -17,7 +18,7 @@ interface SessionData {
 
 interface Props {
   session: SessionData;
-  onClose: () => void;
+  onClose: (opts?: { deleted?: boolean }) => void;
 }
 
 function formatDuration(startedAt: Date, endedAt: Date): string {
@@ -34,6 +35,9 @@ export default function SessionDetailModal({ session, onClose }: Props) {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [serverError, setServerError] = useState("");
   const [isPending, startTransition] = useTransition();
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState("");
 
   const duration = formatDuration(startDate, endDate);
 
@@ -94,7 +98,7 @@ export default function SessionDetailModal({ session, onClose }: Props) {
   return (
     <div
       className="fixed inset-0 z-[100] flex items-end justify-center bg-black/40 motion-safe:animate-fade-in"
-      onClick={onClose}
+      onClick={() => onClose()}
     >
       <div
         className="w-full max-w-md bg-white dark:bg-slate-900 rounded-t-3xl p-6 pb-10 motion-safe:animate-slide-up"
@@ -104,7 +108,7 @@ export default function SessionDetailModal({ session, onClose }: Props) {
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-semibold">Session Details</h2>
           <button
-            onClick={onClose}
+            onClick={() => onClose()}
             className="p-2 rounded-full bg-slate-100 dark:bg-slate-800 min-h-11 min-w-11 flex items-center justify-center"
           >
             <X size={20} />
@@ -180,6 +184,42 @@ export default function SessionDetailModal({ session, onClose }: Props) {
         >
           {isPending ? "Saving..." : "Save"}
         </button>
+
+        {/* Delete section */}
+        <div className="mt-4 pt-4 border-t border-slate-200 dark:border-slate-800">
+          {showDeleteConfirm ? (
+            <>
+              <DeleteConfirmation
+                onConfirm={async () => {
+                  setIsDeleting(true);
+                  setDeleteError("");
+                  const result = await deleteSession(session.id);
+                  if (result.success) {
+                    onClose({ deleted: true });
+                  } else {
+                    setDeleteError(result.error);
+                    setIsDeleting(false);
+                  }
+                }}
+                onCancel={() => setShowDeleteConfirm(false)}
+                isDeleting={isDeleting}
+              />
+              {deleteError && (
+                <p className="text-sm text-[--color-error] mt-2 text-center">
+                  {deleteError}
+                </p>
+              )}
+            </>
+          ) : (
+            <button
+              onClick={() => setShowDeleteConfirm(true)}
+              className="w-full flex items-center justify-center gap-2 py-3 text-[--color-error] min-h-11 transition-all active:scale-95"
+            >
+              <Trash2 size={16} />
+              <span>Delete Session</span>
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );

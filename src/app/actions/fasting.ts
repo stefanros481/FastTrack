@@ -3,7 +3,11 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
-import { sessionEditSchema, noteSchema } from "@/lib/validators";
+import {
+  sessionEditSchema,
+  noteSchema,
+  deleteSessionSchema,
+} from "@/lib/validators";
 
 async function getUserId(): Promise<string> {
   const session = await auth();
@@ -73,6 +77,32 @@ export async function getHistory() {
       notes: true,
     },
   });
+}
+
+export type DeleteSessionResult =
+  | { success: true }
+  | { success: false; error: string };
+
+export async function deleteSession(
+  sessionId: string
+): Promise<DeleteSessionResult> {
+  try {
+    const userId = await getUserId();
+
+    const parsed = deleteSessionSchema.safeParse({ sessionId });
+    if (!parsed.success) {
+      return { success: false, error: "Invalid session ID" };
+    }
+
+    await prisma.fastingSession.delete({
+      where: { id: sessionId, userId },
+    });
+
+    revalidatePath("/");
+    return { success: true };
+  } catch {
+    return { success: false, error: "Session not found" };
+  }
 }
 
 export type UpdateSessionResult =

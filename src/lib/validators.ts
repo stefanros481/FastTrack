@@ -27,3 +27,9 @@ export const noteSchema = z.object({
 });
 
 export type UpdateNoteInput = z.infer<typeof noteSchema>;
+
+export const deleteSessionSchema = z.object({
+  sessionId: z.string().min(1),
+});
+
+export type DeleteSessionInput = z.infer<typeof deleteSessionSchema>;

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo, useTransition } from "react";
+import { useState, useEffect, useTransition } from "react";
 import {
   Timer,
   Flame,
@@ -9,7 +9,6 @@ import {
   Square,
   CheckCircle2,
   Info,
-  ChevronRight,
   Zap,
   Droplets,
   Brain,
@@ -25,7 +24,7 @@ import { startFast, stopFast } from "@/app/actions/fasting";
 import type { FastingStats } from "@/app/actions/fasting";
 import { updateTheme } from "@/app/actions/settings";
 import { useTheme } from "@/components/ThemeProvider";
-import SessionDetailModal from "@/components/SessionDetailModal";
+import HistoryList from "@/components/HistoryList";
 import NoteInput from "@/components/NoteInput";
 
 // --- Constants ---
@@ -44,14 +43,6 @@ const MILESTONES = [
   { hours: 24, label: "Insulin Normalizes", Icon: CheckCircle2 },
 ];
 
-interface CompletedSession {
-  id: string;
-  startedAt: string;
-  endedAt: string;
-  goalMinutes: number | null;
-  notes: string | null;
-}
-
 interface ActiveSession {
   id: string;
   startedAt: string;
@@ -61,7 +52,6 @@ interface ActiveSession {
 
 interface Props {
   activeFast: ActiveSession | null;
-  history: CompletedSession[];
   stats: FastingStats | null;
 }
 
@@ -114,14 +104,13 @@ function ThemeToggle() {
   );
 }
 
-export default function FastingTimer({ activeFast, history, stats }: Props) {
+export default function FastingTimer({ activeFast, stats }: Props) {
   const [view, setView] = useState<"timer" | "dashboard" | "history">("timer");
   const [selectedProtocol, setSelectedProtocol] = useState(FASTING_PROTOCOLS[0]);
   const [currentFast, setCurrentFast] = useState(activeFast);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [isPending, startTransition] = useTransition();
   const [confirmingEnd, setConfirmingEnd] = useState(false);
-  const [selectedSession, setSelectedSession] = useState<CompletedSession | null>(null);
 
   const isFasting = !!currentFast;
   const startTimeMs = currentFast ? new Date(currentFast.startedAt).getTime() : null;
@@ -182,30 +171,6 @@ export default function FastingTimer({ activeFast, history, stats }: Props) {
   };
 
   const handleCancelEnd = () => setConfirmingEnd(false);
-
-  // Compute history durations for display
-  const historyWithDuration = useMemo(
-    () =>
-      history.map((entry) => {
-        const durationHours =
-          (new Date(entry.endedAt).getTime() -
-            new Date(entry.startedAt).getTime()) /
-          (1000 * 60 * 60);
-        const goalMet = entry.goalMinutes
-          ? durationHours >= entry.goalMinutes / 60
-          : false;
-        const protocolMatch = FASTING_PROTOCOLS.find(
-          (p) => p.hours * 60 === entry.goalMinutes
-        );
-        return {
-          ...entry,
-          durationHours,
-          goalMet,
-          protocolName: protocolMatch?.name ?? "Custom",
-        };
-      }),
-    [history]
-  );
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans pb-28">
@@ -435,69 +400,11 @@ export default function FastingTimer({ activeFast, history, stats }: Props) {
 
         {/* --- HISTORY VIEW --- */}
         {view === "history" && (
-          <div className="space-y-4 motion-safe:animate-fade-in">
-            {historyWithDuration.length === 0 ? (
-              <div className="text-center py-20 text-slate-500 bg-white dark:bg-slate-900 rounded-[3rem] border border-dashed border-slate-300 dark:border-slate-800">
-                <History size={48} className="mx-auto mb-4 opacity-10" />
-                <p>No records found</p>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {historyWithDuration.map((entry) => (
-                  <button
-                    key={entry.id}
-                    onClick={() => setSelectedSession(entry)}
-                    className="w-full text-left bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 flex items-center justify-between active:scale-[0.98] transition-transform"
-                  >
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <span className="text-lg font-bold">
-                          {entry.durationHours.toFixed(1)}h
-                        </span>
-                        {entry.goalMet && (
-                          <span className="bg-green-100 dark:bg-green-900/40 text-green-600 dark:text-green-400 text-[10px] px-2 py-0.5 rounded-full font-bold uppercase">
-                            Goal Hit
-                          </span>
-                        )}
-                        <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">
-                          {entry.protocolName}
-                        </span>
-                      </div>
-                      <div className="text-[11px] text-slate-500 mt-1 flex flex-wrap gap-x-2">
-                        <span>
-                          {formatDateLabel(entry.startedAt)}{" "}
-                          {formatTimeLabel(entry.startedAt)}
-                        </span>
-                        <span>&rarr;</span>
-                        <span>
-                          {formatDateLabel(entry.endedAt)}{" "}
-                          {formatTimeLabel(entry.endedAt)}
-                        </span>
-                      </div>
-                      {entry.notes && (
-                        <p className="text-sm text-[--color-text-muted] truncate mt-1">
-                          {entry.notes}
-                        </p>
-                      )}
-                    </div>
-                    <div className="text-slate-300 ml-2">
-                      <ChevronRight size={20} />
-                    </div>
-                  </button>
-                ))}
-              </div>
-            )}
+          <div className="motion-safe:animate-fade-in">
+            <HistoryList />
           </div>
         )}
       </main>
-
-      {/* Session Detail Modal */}
-      {selectedSession && (
-        <SessionDetailModal
-          session={selectedSession}
-          onClose={() => setSelectedSession(null)}
-        />
-      )}
 
       {/* Bottom Navigation */}
       <nav className="fixed bottom-0 left-0 right-0 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-t border-slate-200 dark:border-slate-800 flex justify-around p-4 pb-8 z-50">
