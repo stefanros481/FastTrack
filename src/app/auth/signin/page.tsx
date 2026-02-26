@@ -1,4 +1,5 @@
 import { signIn } from "@/lib/auth";
+import { Flame, Timer, BarChart3, Zap } from "lucide-react";
 
 interface Props {
   searchParams: Promise<{ error?: string }>;
@@ -11,56 +12,117 @@ export default async function SignInPage({ searchParams }: Props) {
   const isOAuthError = error && !isAccessDenied;
 
   return (
-    <main className="min-h-screen bg-[--color-background] flex items-center justify-center px-4">
-      <div className="bg-[--color-card] rounded-2xl p-4 shadow-sm motion-safe:animate-fade-in w-full max-w-sm">
-        <h1 className="text-3xl font-bold text-[--color-text]">FastTrack</h1>
-        <p className="text-base text-[--color-text-muted] mt-1 mb-6">
-          Your personal fasting tracker
-        </p>
+    <main className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center px-4">
+      <div className="w-full max-w-sm motion-safe:animate-fade-in">
+        {/* Logo & Branding */}
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-indigo-600 mb-4">
+            <Flame className="w-8 h-8 text-white" />
+          </div>
+          <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100">
+            FastTrack
+          </h1>
+          <p className="text-slate-500 mt-1">
+            Your personal fasting tracker
+          </p>
+        </div>
 
-        <form
-          action={async () => {
-            "use server";
-            await signIn("google", { redirectTo: "/" });
-          }}
-        >
-          <button
-            type="submit"
-            className="w-full bg-[--color-primary] text-white rounded-full min-h-11 min-w-11 px-6 font-medium hover:bg-[--color-primary-dark] transition-colors flex items-center justify-center gap-2"
-          >
-            <GoogleIcon />
-            Sign in with Google
-          </button>
-        </form>
+        {/* Feature highlights */}
+        <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-200 dark:border-slate-800 mb-6">
+          <div className="space-y-4 mb-6">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-xl bg-indigo-50 dark:bg-indigo-950/40">
+                <Timer className="w-5 h-5 text-indigo-600" />
+              </div>
+              <div>
+                <div className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+                  Track your fasts
+                </div>
+                <div className="text-xs text-slate-500">
+                  Start, stop, and monitor with a live timer
+                </div>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-xl bg-indigo-50 dark:bg-indigo-950/40">
+                <Zap className="w-5 h-5 text-indigo-600" />
+              </div>
+              <div>
+                <div className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+                  Metabolic milestones
+                </div>
+                <div className="text-xs text-slate-500">
+                  See when ketosis, autophagy, and fat burning kick in
+                </div>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-xl bg-indigo-50 dark:bg-indigo-950/40">
+                <BarChart3 className="w-5 h-5 text-indigo-600" />
+              </div>
+              <div>
+                <div className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+                  Insights & history
+                </div>
+                <div className="text-xs text-slate-500">
+                  Review your progress and personal bests
+                </div>
+              </div>
+            </div>
+          </div>
 
-        {process.env.NODE_ENV === "development" && (
           <form
             action={async () => {
               "use server";
-              await signIn("dev-credentials", { redirectTo: "/" });
+              await signIn("google", { redirectTo: "/" });
             }}
           >
             <button
               type="submit"
-              className="w-full mt-3 bg-amber-600 text-white rounded-full min-h-11 min-w-11 px-6 font-medium hover:bg-amber-700 transition-colors flex items-center justify-center gap-2"
+              className="w-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-2xl min-h-12 px-6 font-semibold hover:bg-slate-800 dark:hover:bg-slate-100 transition-colors flex items-center justify-center gap-3"
             >
-              Dev Login
+              <GoogleIcon />
+              Continue with Google
             </button>
           </form>
-        )}
 
-        <div className="mt-4 min-h-6">
-          {isAccessDenied && (
-            <p className="text-[--color-error] text-base animate-shake text-center">
-              This app is private. Access denied.
-            </p>
-          )}
-          {isOAuthError && (
-            <p className="text-[--color-error] text-base text-center">
-              Sign-in is temporarily unavailable. Please try again later.
-            </p>
+          {process.env.NODE_ENV === "development" && (
+            <form
+              action={async () => {
+                "use server";
+                await signIn("dev-credentials", { redirectTo: "/" });
+              }}
+            >
+              <button
+                type="submit"
+                className="w-full mt-3 bg-amber-600 text-white rounded-2xl min-h-12 px-6 font-semibold hover:bg-amber-700 transition-colors flex items-center justify-center gap-2"
+              >
+                Dev Login
+              </button>
+            </form>
           )}
         </div>
+
+        {/* Error messages */}
+        {isAccessDenied && (
+          <div className="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900 rounded-2xl p-4 text-center animate-shake">
+            <p className="text-red-600 dark:text-red-400 text-sm font-medium">
+              This app is private. Access denied.
+            </p>
+          </div>
+        )}
+        {isOAuthError && (
+          <div className="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900 rounded-2xl p-4 text-center">
+            <p className="text-red-600 dark:text-red-400 text-sm font-medium">
+              Sign-in is temporarily unavailable. Please try again later.
+            </p>
+          </div>
+        )}
+
+        {/* Footer */}
+        <p className="text-center text-xs text-slate-400 mt-6">
+          Private app — authorized accounts only
+        </p>
       </div>
     </main>
   );
