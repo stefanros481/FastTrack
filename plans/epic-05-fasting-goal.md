@@ -12,7 +12,7 @@ Users can set a target duration per session. Progress is shown as a circular rin
 
 **Acceptance criteria:**
 - When starting a fast, I can optionally set a goal
-- Quick-select options: 16h, 18h, 20h, 24h
+- Quick-select options: 12h, 16h, 18h, 20h, 24h
 - Custom input for any duration
 - Goal stored as `goalMinutes` on the session record
 - If a default goal exists in settings, it pre-fills
