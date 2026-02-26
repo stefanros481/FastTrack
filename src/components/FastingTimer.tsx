@@ -24,6 +24,11 @@ import { useTheme } from "@/components/ThemeProvider";
 import HistoryList from "@/components/HistoryList";
 import NoteInput from "@/components/NoteInput";
 import StatsCards from "@/components/StatsCards";
+import DurationChart from "@/components/DurationChart";
+import WeeklyChart from "@/components/WeeklyChart";
+import GoalRateChart from "@/components/GoalRateChart";
+import ChartSkeleton from "@/components/ChartSkeleton";
+import { useChartData } from "@/hooks/useChartData";
 
 // --- Constants ---
 const FASTING_PROTOCOLS = [
@@ -99,6 +104,30 @@ function ThemeToggle() {
       {theme === "system" && <Monitor className="w-5 h-5" />}
       {theme === "dark" && <Moon className="w-5 h-5" />}
     </button>
+  );
+}
+
+function DashboardView({ stats }: { stats: FastingStats | null }) {
+  const { data, isLoading, range, setRange } = useChartData();
+
+  return (
+    <div className="space-y-6 motion-safe:animate-fade-in">
+      <StatsCards stats={stats} />
+      {isLoading || !data ? (
+        <ChartSkeleton />
+      ) : (
+        <>
+          <DurationChart
+            duration={data.duration}
+            defaultGoalHours={data.defaultGoalHours}
+            range={range}
+            onRangeChange={setRange}
+          />
+          <WeeklyChart weekly={data.weekly} />
+          <GoalRateChart goalRate={data.goalRate} />
+        </>
+      )}
+    </div>
   );
 }
 
@@ -344,9 +373,7 @@ export default function FastingTimer({ activeFast, stats }: Props) {
 
         {/* --- DASHBOARD VIEW --- */}
         {view === "dashboard" && (
-          <div className="space-y-6 motion-safe:animate-fade-in">
-            <StatsCards stats={stats} />
-          </div>
+          <DashboardView stats={stats} />
         )}
 
         {/* --- HISTORY VIEW --- */}
