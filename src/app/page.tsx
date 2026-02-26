@@ -1,16 +1,41 @@
 import { auth } from "@/lib/auth";
+import { redirect } from "next/navigation";
+import { getActiveFast, getHistory, getStats } from "@/app/actions/fasting";
+import { getTheme } from "@/app/actions/settings";
+import FastingTimer from "@/components/FastingTimer";
+import ThemeProvider from "@/components/ThemeProvider";
 
 export default async function HomePage() {
   const session = await auth();
+  if (!session) redirect("/auth/signin");
+
+  const [activeFast, history, stats, theme] = await Promise.all([
+    getActiveFast(),
+    getHistory(),
+    getStats(),
+    getTheme(),
+  ]);
 
   return (
-    <main className="min-h-screen bg-[--color-background] px-4 py-8">
-      <h1 className="text-3xl font-bold text-[--color-text]">
-        Welcome, {session?.user?.name ?? "there"}
-      </h1>
-      <p className="text-base text-[--color-text-muted] mt-2">
-        FastTrack — your personal fasting tracker
-      </p>
-    </main>
+    <ThemeProvider initialTheme={theme as "light" | "dark" | "system"}>
+      <FastingTimer
+        activeFast={
+          activeFast
+            ? {
+                id: activeFast.id,
+                startedAt: activeFast.startedAt.toISOString(),
+                goalMinutes: activeFast.goalMinutes,
+              }
+            : null
+        }
+        history={history.map((s) => ({
+          id: s.id,
+          startedAt: s.startedAt.toISOString(),
+          endedAt: s.endedAt!.toISOString(),
+          goalMinutes: s.goalMinutes,
+        }))}
+        stats={stats}
+      />
+    </ThemeProvider>
   );
 }

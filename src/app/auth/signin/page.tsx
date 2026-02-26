@@ -33,6 +33,22 @@ export default async function SignInPage({ searchParams }: Props) {
           </button>
         </form>
 
+        {process.env.NODE_ENV === "development" && (
+          <form
+            action={async () => {
+              "use server";
+              await signIn("dev-credentials", { redirectTo: "/" });
+            }}
+          >
+            <button
+              type="submit"
+              className="w-full mt-3 bg-amber-600 text-white rounded-full min-h-11 min-w-11 px-6 font-medium hover:bg-amber-700 transition-colors flex items-center justify-center gap-2"
+            >
+              Dev Login
+            </button>
+          </form>
+        )}
+
         <div className="mt-4 min-h-6">
           {isAccessDenied && (
             <p className="text-[--color-error] text-base animate-shake text-center">

@@ -31,13 +31,29 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
       }
       return session;
     },
-    async jwt({ token, user }) {
+    async jwt({ token, user, account }) {
       if (user?.email) {
-        const dbUser = await prisma.user.findUnique({
-          where: { email: user.email },
-          select: { id: true },
-        });
-        if (dbUser) token.sub = dbUser.id;
+        // For credentials provider, upsert the user here since signIn callback
+        // doesn't get full profile data from OAuth
+        if (account?.provider === "dev-credentials") {
+          const dbUser = await prisma.user.upsert({
+            where: { email: user.email },
+            update: {},
+            create: {
+              email: user.email,
+              name: user.name,
+              settings: { create: {} },
+            },
+            select: { id: true },
+          });
+          token.sub = dbUser.id;
+        } else {
+          const dbUser = await prisma.user.findUnique({
+            where: { email: user.email },
+            select: { id: true },
+          });
+          if (dbUser) token.sub = dbUser.id;
+        }
       }
       return token;
     },
