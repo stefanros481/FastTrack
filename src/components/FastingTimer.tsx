@@ -239,11 +239,11 @@ export default function FastingTimer({ activeFast, stats }: Props) {
               <span className="text-slate-400 text-sm uppercase font-bold tracking-widest mb-2 relative z-10">
                 {isFasting ? "Fasting Time" : "Session Ready"}
               </span>
-              <div className="text-6xl font-mono font-bold tracking-tighter mb-4 relative z-10">
+              <div className="text-6xl font-mono font-bold tracking-tighter mb-4 relative z-10" suppressHydrationWarning>
                 {formatTime(elapsedSeconds)}
               </div>
               {isFasting && startTimeMs && (
-                <div className="flex items-center gap-2 text-xs text-slate-500 bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-full relative z-10">
+                <div className="flex items-center gap-2 text-xs text-slate-500 bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-full relative z-10" suppressHydrationWarning>
                   <Moon size={12} />
                   Started {formatDateLabel(currentFast!.startedAt)} @{" "}
                   {formatTimeLabel(currentFast!.startedAt)}
