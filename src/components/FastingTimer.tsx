@@ -115,6 +115,7 @@ export default function FastingTimer({ activeFast, history, stats }: Props) {
   const [currentFast, setCurrentFast] = useState(activeFast);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [isPending, startTransition] = useTransition();
+  const [confirmingEnd, setConfirmingEnd] = useState(false);
 
   const isFasting = !!currentFast;
   const startTimeMs = currentFast ? new Date(currentFast.startedAt).getTime() : null;
@@ -162,11 +163,18 @@ export default function FastingTimer({ activeFast, history, stats }: Props) {
 
   const handleEndFast = () => {
     if (!currentFast) return;
+    if (!confirmingEnd) {
+      setConfirmingEnd(true);
+      return;
+    }
+    setConfirmingEnd(false);
     startTransition(async () => {
       await stopFast(currentFast.id);
       setCurrentFast(null);
     });
   };
+
+  const handleCancelEnd = () => setConfirmingEnd(false);
 
   // Compute history durations for display
   const historyWithDuration = useMemo(
@@ -274,26 +282,44 @@ export default function FastingTimer({ activeFast, history, stats }: Props) {
             </div>
 
             {/* Start / Stop button */}
-            <button
-              onClick={isFasting ? handleEndFast : handleStartFast}
-              disabled={isPending}
-              className={`w-full py-6 rounded-3xl font-bold text-xl shadow-xl transition-all active:scale-95 flex items-center justify-center gap-3 min-h-11 ${
-                isFasting
-                  ? "bg-slate-200 dark:bg-slate-800 text-slate-900 dark:text-slate-100"
-                  : "bg-indigo-600 text-white hover:bg-indigo-700"
-              } ${isPending ? "opacity-60" : ""}`}
-            >
-              {isFasting ? (
-                <>
-                  <Square fill="currentColor" size={24} /> End Fast
-                </>
-              ) : (
-                <>
-                  <Play fill="currentColor" size={24} /> Start{" "}
-                  {selectedProtocol.name} Fast
-                </>
-              )}
-            </button>
+            {isFasting && confirmingEnd ? (
+              <div className="flex gap-3">
+                <button
+                  onClick={handleCancelEnd}
+                  className="flex-1 py-6 rounded-3xl font-bold text-xl transition-all active:scale-95 flex items-center justify-center gap-2 min-h-11 bg-slate-200 dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleEndFast}
+                  disabled={isPending}
+                  className={`flex-1 py-6 rounded-3xl font-bold text-xl shadow-xl transition-all active:scale-95 flex items-center justify-center gap-2 min-h-11 bg-red-600 text-white hover:bg-red-700 ${isPending ? "opacity-60" : ""}`}
+                >
+                  <Square fill="currentColor" size={20} /> Confirm End
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={isFasting ? handleEndFast : handleStartFast}
+                disabled={isPending}
+                className={`w-full py-6 rounded-3xl font-bold text-xl shadow-xl transition-all active:scale-95 flex items-center justify-center gap-3 min-h-11 ${
+                  isFasting
+                    ? "bg-slate-200 dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+                    : "bg-indigo-600 text-white hover:bg-indigo-700"
+                } ${isPending ? "opacity-60" : ""}`}
+              >
+                {isFasting ? (
+                  <>
+                    <Square fill="currentColor" size={24} /> End Fast
+                  </>
+                ) : (
+                  <>
+                    <Play fill="currentColor" size={24} /> Start{" "}
+                    {selectedProtocol.name} Fast
+                  </>
+                )}
+              </button>
+            )}
 
             {/* Milestones (active only) */}
             {isFasting && (
