@@ -20,3 +20,10 @@ export const sessionEditSchema = z
   });
 
 export type SessionEditInput = z.infer<typeof sessionEditSchema>;
+
+export const noteSchema = z.object({
+  sessionId: z.string().min(1),
+  note: z.string().max(280).nullable(),
+});
+
+export type UpdateNoteInput = z.infer<typeof noteSchema>;

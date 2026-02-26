@@ -5,12 +5,14 @@ import { X } from "lucide-react";
 import { updateSession } from "@/app/actions/fasting";
 import { sessionEditSchema } from "@/lib/validators";
 import { DateTimePicker } from "@/components/ui/date-time-picker";
+import NoteInput from "@/components/NoteInput";
 
 interface SessionData {
   id: string;
   startedAt: string;
   endedAt: string;
   goalMinutes: number | null;
+  notes: string | null;
 }
 
 interface Props {
@@ -149,6 +151,14 @@ export default function SessionDetailModal({ session, onClose }: Props) {
           {errors.endedAt && (
             <p className="text-sm text-red-600 mt-1">{errors.endedAt}</p>
           )}
+        </div>
+
+        {/* Note */}
+        <div className="mb-6">
+          <label className="block text-sm font-medium text-[--color-text-muted] mb-1">
+            Note
+          </label>
+          <NoteInput sessionId={session.id} initialNote={session.notes} />
         </div>
 
         {/* Server error */}

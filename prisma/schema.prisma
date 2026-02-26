@@ -25,7 +25,7 @@ model FastingSession {
   startedAt   DateTime
   endedAt     DateTime?
   goalMinutes Int?
-  notes       String?
+  notes       String?   @db.VarChar(280)
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 }

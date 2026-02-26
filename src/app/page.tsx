@@ -25,6 +25,7 @@ export default async function HomePage() {
                 id: activeFast.id,
                 startedAt: activeFast.startedAt.toISOString(),
                 goalMinutes: activeFast.goalMinutes,
+                notes: activeFast.notes,
               }
             : null
         }
@@ -33,6 +34,7 @@ export default async function HomePage() {
           startedAt: s.startedAt.toISOString(),
           endedAt: s.endedAt!.toISOString(),
           goalMinutes: s.goalMinutes,
+          notes: s.notes,
         }))}
         stats={stats}
       />

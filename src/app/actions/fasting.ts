@@ -3,7 +3,7 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
-import { sessionEditSchema } from "@/lib/validators";
+import { sessionEditSchema, noteSchema } from "@/lib/validators";
 
 async function getUserId(): Promise<string> {
   const session = await auth();
@@ -49,6 +49,12 @@ export async function getActiveFast() {
   return prisma.fastingSession.findFirst({
     where: { userId, endedAt: null },
     orderBy: { startedAt: "desc" },
+    select: {
+      id: true,
+      startedAt: true,
+      goalMinutes: true,
+      notes: true,
+    },
   });
 }
 
@@ -59,6 +65,13 @@ export async function getHistory() {
     where: { userId, endedAt: { not: null } },
     orderBy: { startedAt: "desc" },
     take: 50,
+    select: {
+      id: true,
+      startedAt: true,
+      endedAt: true,
+      goalMinutes: true,
+      notes: true,
+    },
   });
 }
 
@@ -107,6 +120,40 @@ export async function updateSession(
   await prisma.fastingSession.update({
     where: { id: sessionId, userId },
     data: { startedAt, endedAt },
+  });
+
+  revalidatePath("/");
+  return { success: true };
+}
+
+export type UpdateNoteResult =
+  | { success: true }
+  | { success: false; error: string };
+
+export async function updateNote(
+  sessionId: string,
+  note: string | null
+): Promise<UpdateNoteResult> {
+  const userId = await getUserId();
+
+  const parsed = noteSchema.safeParse({ sessionId, note });
+  if (!parsed.success) {
+    return { success: false, error: "Note must be 280 characters or less" };
+  }
+
+  const trimmedNote = note?.trim() || null;
+  const noteValue = trimmedNote === "" ? null : trimmedNote;
+
+  const existing = await prisma.fastingSession.findFirst({
+    where: { id: sessionId, userId },
+  });
+  if (!existing) {
+    return { success: false, error: "Session not found" };
+  }
+
+  await prisma.fastingSession.update({
+    where: { id: sessionId, userId },
+    data: { notes: noteValue },
   });
 
   revalidatePath("/");

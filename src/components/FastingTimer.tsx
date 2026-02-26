@@ -26,6 +26,7 @@ import type { FastingStats } from "@/app/actions/fasting";
 import { updateTheme } from "@/app/actions/settings";
 import { useTheme } from "@/components/ThemeProvider";
 import SessionDetailModal from "@/components/SessionDetailModal";
+import NoteInput from "@/components/NoteInput";
 
 // --- Constants ---
 const FASTING_PROTOCOLS = [
@@ -48,12 +49,14 @@ interface CompletedSession {
   startedAt: string;
   endedAt: string;
   goalMinutes: number | null;
+  notes: string | null;
 }
 
 interface ActiveSession {
   id: string;
   startedAt: string;
   goalMinutes: number | null;
+  notes: string | null;
 }
 
 interface Props {
@@ -160,6 +163,7 @@ export default function FastingTimer({ activeFast, history, stats }: Props) {
         id: session.id,
         startedAt: session.startedAt.toISOString(),
         goalMinutes: session.goalMinutes,
+        notes: null,
       });
     });
   };
@@ -283,6 +287,14 @@ export default function FastingTimer({ activeFast, history, stats }: Props) {
                 </div>
               )}
             </div>
+
+            {/* Note input (active fast only) */}
+            {isFasting && currentFast && (
+              <NoteInput
+                sessionId={currentFast.id}
+                initialNote={currentFast.notes ?? null}
+              />
+            )}
 
             {/* Start / Stop button */}
             {isFasting && confirmingEnd ? (
@@ -462,6 +474,11 @@ export default function FastingTimer({ activeFast, history, stats }: Props) {
                           {formatTimeLabel(entry.endedAt)}
                         </span>
                       </div>
+                      {entry.notes && (
+                        <p className="text-sm text-[--color-text-muted] truncate mt-1">
+                          {entry.notes}
+                        </p>
+                      )}
                     </div>
                     <div className="text-slate-300 ml-2">
                       <ChevronRight size={20} />
