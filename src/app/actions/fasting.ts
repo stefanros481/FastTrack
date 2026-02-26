@@ -3,6 +3,7 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { sessionEditSchema } from "@/lib/validators";
 
 async function getUserId(): Promise<string> {
   const session = await auth();
@@ -59,6 +60,57 @@ export async function getHistory() {
     orderBy: { startedAt: "desc" },
     take: 50,
   });
+}
+
+export type UpdateSessionResult =
+  | { success: true }
+  | { success: false; error: string; field?: string };
+
+export async function updateSession(
+  sessionId: string,
+  startedAt: Date,
+  endedAt: Date
+): Promise<UpdateSessionResult> {
+  const userId = await getUserId();
+
+  const parsed = sessionEditSchema.safeParse({ sessionId, startedAt, endedAt });
+  if (!parsed.success) {
+    const firstIssue = parsed.error.issues[0];
+    return {
+      success: false,
+      error: firstIssue.message,
+      field: firstIssue.path[0] as string | undefined,
+    };
+  }
+
+  // Verify session belongs to user
+  const existing = await prisma.fastingSession.findFirst({
+    where: { id: sessionId, userId },
+  });
+  if (!existing) {
+    return { success: false, error: "Session not found" };
+  }
+
+  // Check for overlapping sessions
+  const overlap = await prisma.fastingSession.findFirst({
+    where: {
+      userId,
+      id: { not: sessionId },
+      startedAt: { lt: endedAt },
+      endedAt: { gt: startedAt },
+    },
+  });
+  if (overlap) {
+    return { success: false, error: "This overlaps with another session" };
+  }
+
+  await prisma.fastingSession.update({
+    where: { id: sessionId, userId },
+    data: { startedAt, endedAt },
+  });
+
+  revalidatePath("/");
+  return { success: true };
 }
 
 export interface FastingStats {

@@ -25,6 +25,7 @@ import { startFast, stopFast } from "@/app/actions/fasting";
 import type { FastingStats } from "@/app/actions/fasting";
 import { updateTheme } from "@/app/actions/settings";
 import { useTheme } from "@/components/ThemeProvider";
+import SessionDetailModal from "@/components/SessionDetailModal";
 
 // --- Constants ---
 const FASTING_PROTOCOLS = [
@@ -81,6 +82,7 @@ function formatTimeLabel(dateStr: string) {
   return new Date(dateStr).toLocaleTimeString([], {
     hour: "2-digit",
     minute: "2-digit",
+    hour12: false,
   });
 }
 
@@ -116,6 +118,7 @@ export default function FastingTimer({ activeFast, history, stats }: Props) {
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [isPending, startTransition] = useTransition();
   const [confirmingEnd, setConfirmingEnd] = useState(false);
+  const [selectedSession, setSelectedSession] = useState<CompletedSession | null>(null);
 
   const isFasting = !!currentFast;
   const startTimeMs = currentFast ? new Date(currentFast.startedAt).getTime() : null;
@@ -429,9 +432,10 @@ export default function FastingTimer({ activeFast, history, stats }: Props) {
             ) : (
               <div className="space-y-3">
                 {historyWithDuration.map((entry) => (
-                  <div
+                  <button
                     key={entry.id}
-                    className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 flex items-center justify-between"
+                    onClick={() => setSelectedSession(entry)}
+                    className="w-full text-left bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 flex items-center justify-between active:scale-[0.98] transition-transform"
                   >
                     <div className="flex-1">
                       <div className="flex items-center gap-2">
@@ -462,13 +466,21 @@ export default function FastingTimer({ activeFast, history, stats }: Props) {
                     <div className="text-slate-300 ml-2">
                       <ChevronRight size={20} />
                     </div>
-                  </div>
+                  </button>
                 ))}
               </div>
             )}
           </div>
         )}
       </main>
+
+      {/* Session Detail Modal */}
+      {selectedSession && (
+        <SessionDetailModal
+          session={selectedSession}
+          onClose={() => setSelectedSession(null)}
+        />
+      )}
 
       {/* Bottom Navigation */}
       <nav className="fixed bottom-0 left-0 right-0 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-t border-slate-200 dark:border-slate-800 flex justify-around p-4 pb-8 z-50">
