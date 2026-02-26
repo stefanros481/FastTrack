@@ -1,15 +1,21 @@
 import { auth, signOut } from "@/lib/auth";
 import { redirect } from "next/navigation";
+import { getDefaultGoal } from "@/app/actions/settings";
+import DefaultGoalSetting from "@/components/DefaultGoalSetting";
 
 export default async function SettingsPage() {
   const session = await auth();
   if (!session) redirect("/auth/signin");
 
+  const defaultGoal = await getDefaultGoal();
+
   return (
     <main className="min-h-screen bg-[--color-background] px-4 py-8">
       <h1 className="text-3xl font-bold text-[--color-text]">Settings</h1>
 
-      <div className="mt-8">
+      <div className="mt-8 space-y-6">
+        <DefaultGoalSetting currentDefault={defaultGoal} />
+
         <form
           action={async () => {
             "use server";

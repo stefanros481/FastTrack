@@ -32,4 +32,6 @@
 ## Notes
 
 - All items pass validation. Spec is ready for `/speckit.clarify` or `/speckit.plan`.
-- The Assumptions section documents key decisions about the relationship between the existing protocol selector and the new goal pill selector — this may warrant clarification with the user during `/speckit.clarify`.
+- The Assumptions section documents the relationship between the existing protocol selector and the new goal pill selector — this may warrant clarification during `/speckit.clarify`.
+- Notification permission strategy (when to prompt) is documented as an assumption with a reasonable default.
+- The 72-hour maximum goal cap is an informed assumption; adjustable if user provides different requirements.

@@ -28,3 +28,28 @@ export async function getTheme(): Promise<string> {
 
   return settings?.theme ?? "system";
 }
+
+export async function getDefaultGoal(): Promise<number | null> {
+  const userId = await getUserId();
+
+  const settings = await prisma.userSettings.findUnique({
+    where: { userId },
+    select: { defaultGoalMinutes: true },
+  });
+
+  return settings?.defaultGoalMinutes ?? null;
+}
+
+export async function updateDefaultGoal(goalMinutes: number | null) {
+  const userId = await getUserId();
+
+  if (goalMinutes !== null) {
+    const { goalMinutesSchema } = await import("@/lib/validators");
+    goalMinutesSchema.parse(goalMinutes);
+  }
+
+  await prisma.userSettings.update({
+    where: { userId },
+    data: { defaultGoalMinutes: goalMinutes },
+  });
+}

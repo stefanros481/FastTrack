@@ -3,153 +3,143 @@
 **Feature Branch**: `005-fasting-goal`
 **Created**: 2026-02-26
 **Status**: Draft
-**Input**: User description: "Implement EPIC 05 — Fasting Goal. Users can set a target duration per session, view progress as a circular ring, receive a celebration animation and notification when the goal is reached, and configure a default goal in settings."
+**Input**: Epic 05 — Fasting Goal: goal setting, progress ring, goal-reached notification, and default goal in settings
 
 ## User Scenarios & Testing *(mandatory)*
 
-### User Story 1 - Set a Fasting Goal When Starting a Fast (Priority: P1)
+### User Story 1 — Set a Fasting Goal (Priority: P1) 🎯 MVP
 
-As a user, I want to set a target duration when I start a fast so that I have a clear goal to work toward and can track my progress.
+A user starting a new fast can select a target duration for their session. Quick-select goal pills (12h, 16h, 18h, 20h, 24h) are presented as pill buttons. Where a pill corresponds to a known fasting protocol, a subtitle is shown (e.g., 16h → "Intermittent", 18h → "Advanced", 20h → "Warrior", 24h → "OMAD"). The 12h pill has no protocol subtitle. The user can also enter a custom duration in hours and minutes. If the user has previously saved a default goal in settings, that goal is automatically pre-selected when starting a new fast. The selected goal is saved with the fasting session.
 
-**Why this priority**: This is the foundational interaction — without the ability to set a goal, no other goal-related feature (progress, notifications, defaults) has meaning. It delivers immediate value by giving users intent and structure to their fasts.
+**Why this priority**: Without goal setting, the remaining stories (progress ring, notifications) have nothing to track against. This is the foundational capability.
 
-**Independent Test**: Can be fully tested by starting a fast with a selected goal duration, verifying the goal is persisted, and confirming it appears in session history. Delivers the core value of goal-setting.
+**Independent Test**: Start a new fast, select a goal duration from quick-select pills or enter a custom value, confirm the fast starts with the chosen goal recorded. Verify the default goal pre-fills if one is saved in settings.
 
 **Acceptance Scenarios**:
 
-1. **Given** the user is on the start screen (no active fast), **When** they view the goal selection area, **Then** they see quick-select options for 12h, 16h, 18h, 20h, and 24h displayed as selectable pills.
-2. **Given** the user is on the start screen, **When** they want a non-standard duration, **Then** they can enter a custom goal duration using a numeric input (in hours and minutes).
-3. **Given** the user has selected a goal (quick-select or custom), **When** they start the fast, **Then** the goal duration is saved with the fasting session.
-4. **Given** the user has a default goal configured in settings, **When** they open the start screen, **Then** the default goal is pre-selected.
-5. **Given** the user has a pre-selected default goal, **When** they choose a different goal before starting, **Then** the newly selected goal overrides the default for this session only.
-6. **Given** the user does not want a goal for this session, **When** they start the fast without selecting any goal, **Then** the session is started with no goal attached.
+1. **Given** the user is on the timer screen and not fasting, **When** they view the goal selector, **Then** they see quick-select pill buttons for 12h, 16h, 18h, 20h, and 24h.
+2. **Given** the user has no default goal set, **When** they view the goal selector, **Then** no pill is pre-selected (the first protocol option is selected as currently implemented).
+3. **Given** the user has a default goal of 16h saved in settings, **When** they view the goal selector, **Then** the 16h pill is pre-selected.
+4. **Given** the user has a default goal that doesn't match any quick-select option (e.g., 14h), **When** they view the goal selector, **Then** the custom input is pre-filled with 14h.
+5. **Given** the user selects a quick-select pill, **When** they start the fast, **Then** the session is created with the corresponding goal duration.
+6. **Given** the user enters a custom duration (e.g., 15 hours 30 minutes), **When** they start the fast, **Then** the session is created with 930 minutes as the goal.
+7. **Given** the user selects a goal and then changes their mind, **When** they select a different pill or modify the custom input, **Then** the new goal replaces the previous selection.
 
 ---
 
-### User Story 2 - View Goal Progress During an Active Fast (Priority: P1)
+### User Story 2 — View Goal Progress Ring (Priority: P2)
 
-As a user, I want to see my progress toward my fasting goal as a visual indicator so that I stay motivated throughout my fast.
+While fasting with a goal set, the existing background fill animation is replaced by a circular progress ring as the hero visual element. The ring fills clockwise as time progresses. Inside the ring, the elapsed HH:MM:SS timer is displayed as the primary readout, with the percentage and remaining time ("Xh Ym to go") as secondary labels below it. This creates a single unified progress display. When the goal is reached, the ring completes fully and changes to a success color with a celebration animation.
 
-**Why this priority**: Visual progress feedback is what transforms a simple timer into a goal-oriented experience. Without it, setting a goal has no visible payoff during the fast itself. This is co-equal with goal-setting as it completes the core loop.
+**Why this priority**: The progress ring is the primary motivational element during a fast. It transforms raw elapsed time into meaningful, goal-oriented feedback.
 
-**Independent Test**: Can be tested by starting a fast with a goal and observing the progress ring fill over time, verifying percentage accuracy and remaining time display. Delivers motivational value during an active fast.
+**Independent Test**: Start a fast with a goal, observe the ring filling over time, verify the percentage and "time to go" label update. When goal time is reached, verify the ring turns green and the celebration animation plays.
 
 **Acceptance Scenarios**:
 
-1. **Given** the user has an active fast with a goal set, **When** they view the timer screen, **Then** they see a circular progress ring showing the percentage of the goal completed.
-2. **Given** the user has an active fast with a goal, **When** time elapses, **Then** the ring progressively fills and the remaining time (e.g., "4h 23m to go") updates in real time.
-3. **Given** the user has an active fast with a goal, **When** the elapsed time reaches 100% of the goal, **Then** the ring completes fully and changes color to indicate success.
-4. **Given** the user has an active fast without a goal, **When** they view the timer screen, **Then** no progress ring or goal-related indicators are shown (standard timer display only).
-5. **Given** the user has an active fast and the elapsed time exceeds the goal, **When** they view the timer, **Then** the ring remains at 100% and the display shows how much time has passed beyond the goal (e.g., "+1h 15m").
+1. **Given** the user is fasting with a goal set, **When** viewing the timer screen, **Then** a circular progress ring replaces the background fill animation, with the HH:MM:SS timer inside the ring, and percentage + remaining time below.
+2. **Given** the user is fasting with a 16h goal and 8h have elapsed, **When** viewing the progress ring, **Then** the ring is approximately 50% filled, the elapsed timer shows inside the ring, and "50% · 8h 0m to go" is displayed below.
+3. **Given** the user is fasting with a goal set, **When** the elapsed time increases, **Then** the ring smoothly animates to reflect the new percentage.
+4. **Given** the user is fasting and reaches 100% of their goal, **When** the goal is reached, **Then** the ring changes to a success color and a celebration animation plays (respecting reduced-motion preferences).
+5. **Given** the user is fasting past their goal (e.g., 18h elapsed on a 16h goal), **When** viewing the progress ring, **Then** the ring stays at 100% with the success color and shows "Goal reached!" instead of remaining time.
+6. **Given** the user is fasting without a goal set, **When** viewing the timer screen, **Then** the existing timer card with background fill animation is shown (no progress ring).
 
 ---
 
-### User Story 3 - Celebrate Goal Completion (Priority: P2)
+### User Story 3 — Goal Reached Notification (Priority: P3)
 
-As a user, I want to see a celebration when I reach my fasting goal so that I feel rewarded and motivated to continue fasting with goals.
+When the user reaches their fasting goal, they receive a notification. If the browser supports notifications and permission has been granted, a browser notification is sent. If browser notifications are unavailable or denied, an in-app toast notification appears instead. The notification includes the goal duration in the message.
 
-**Why this priority**: Celebration provides the emotional payoff for reaching a goal. While not strictly required for functionality, it significantly enhances user satisfaction and motivation. Depends on the progress ring (US-2) being in place.
+**Why this priority**: Notifications are valuable but secondary to the visual progress. Users actively watching the app will see the ring complete; notifications serve users who have the app in the background.
 
-**Independent Test**: Can be tested by starting a fast with a short goal duration, waiting for the goal to be reached, and observing the celebration animation and visual feedback. Delivers emotional reward.
+**Independent Test**: Start a fast with a short goal (or simulate elapsed time), wait for the goal to be reached, verify a browser notification fires (if permitted) and/or an in-app toast appears with the correct message.
 
 **Acceptance Scenarios**:
 
-1. **Given** the user has an active fast with a goal, **When** the elapsed time first reaches the goal duration, **Then** a celebration animation plays on the progress ring (e.g., a bounce-in checkmark).
-2. **Given** the user has an active fast with a goal, **When** the goal is reached, **Then** the progress ring stroke color transitions from the primary color to a success color.
-3. **Given** the user has reduced motion enabled in their OS, **When** the goal is reached, **Then** the celebration animation respects the `prefers-reduced-motion` setting (visual change without animation).
+1. **Given** the user is fasting with a 16h goal and browser notification permission is granted, **When** elapsed time reaches 16h, **Then** a browser notification appears with "You've reached your 16h fasting goal!"
+2. **Given** the user is fasting with a goal and browser notifications are denied or unavailable, **When** the goal is reached, **Then** an in-app toast notification slides up with the same message, auto-dismisses after 5 seconds, and can be tapped to dismiss early.
+3. **Given** the user has already been notified for this session's goal, **When** time continues to pass, **Then** no additional notifications are sent for the same session.
+4. **Given** the app is in the background (browser tab not focused), **When** the goal is reached, **Then** the browser notification still fires (if permission granted).
 
 ---
 
-### User Story 4 - Receive Goal Notification (Priority: P2)
+### User Story 4 — Default Goal in Settings (Priority: P4)
 
-As a user, I want to be notified when I reach my fasting goal so that I know I can break my fast, even if the app is in the background.
+The user can configure a default fasting goal on the settings page. When set, this default pre-fills the goal selector on new fasts. The user can override the default on any individual session. The default can be changed or cleared at any time.
 
-**Why this priority**: Notifications extend goal tracking beyond the active screen. Users often start a fast and check back later. This ensures they don't miss their goal moment. Depends on US-2 for the elapsed-time tracking logic.
+**Why this priority**: This is a convenience feature that reduces friction for repeat users but is not essential for core goal-setting functionality.
 
-**Independent Test**: Can be tested by starting a fast with a goal, waiting for the elapsed time to reach the goal, and verifying that a browser notification fires (with in-app toast as fallback). Delivers awareness value.
-
-**Acceptance Scenarios**:
-
-1. **Given** the user has an active fast with a goal and has granted notification permission, **When** the elapsed time reaches the goal duration, **Then** a browser notification is sent with the message "You've reached your [X]h fasting goal!".
-2. **Given** the user has an active fast with a goal and has NOT granted notification permission, **When** the goal is reached, **Then** an in-app toast notification appears as a fallback.
-3. **Given** the user has already been notified about reaching the goal for this session, **When** the timer continues running, **Then** no additional notifications are sent for the same session.
-4. **Given** the app is in the background or the browser tab is not focused, **When** the goal is reached, **Then** the browser notification still fires (if permission was granted).
-
----
-
-### User Story 5 - Configure Default Goal in Settings (Priority: P3)
-
-As a user, I want to set a default fasting goal in my settings so that I don't have to pick one every time I start a fast.
-
-**Why this priority**: This is a convenience feature that reduces friction for repeat users. It depends on the goal-setting UI (US-1) being in place first. Lower priority because users can manually select a goal each time without this.
-
-**Independent Test**: Can be tested by navigating to settings, selecting a default goal, returning to the start screen, and verifying the default is pre-filled. Delivers convenience value for repeat use.
+**Independent Test**: Navigate to settings, set a default goal, go back to the timer, start a new fast, verify the goal selector is pre-filled with the saved default. Clear the default in settings and verify no pre-fill occurs.
 
 **Acceptance Scenarios**:
 
-1. **Given** the user navigates to the settings page, **When** they view the settings, **Then** they see a "Default fasting goal" option.
-2. **Given** the user is on the settings page, **When** they select a default goal (from the same quick-select options: 12h, 16h, 18h, 20h, 24h, or custom), **Then** the selection is saved immediately.
-3. **Given** the user has set a default goal, **When** they start a new fast, **Then** the default goal is pre-selected on the start screen.
-4. **Given** the user has set a default goal, **When** they want to clear it, **Then** they can select "No default" to remove the default goal.
-5. **Given** the user has no default goal set, **When** they navigate to settings, **Then** the default goal option shows "None" or equivalent.
+1. **Given** the user is on the settings page, **When** they look at the settings options, **Then** they see a "Default fasting goal" option.
+2. **Given** the user taps the default goal setting, **When** selecting a duration (same quick-select options: 12h, 16h, 18h, 20h, 24h, or custom), **Then** the default is saved and persisted across sessions.
+3. **Given** the user has a default goal of 18h saved, **When** they navigate to the timer and prepare to start a fast, **Then** the 18h pill is pre-selected in the goal selector.
+4. **Given** the user has a default goal set, **When** they start a fast and override the goal to a different value, **Then** the session uses the overridden value, not the default.
+5. **Given** the user wants to remove their default goal, **When** they clear the selection in settings, **Then** future fasts no longer pre-fill a goal.
 
 ---
 
 ### Edge Cases
 
-- What happens when the user sets a custom goal of 0 minutes or a negative value? The system rejects it and shows a validation error. Minimum goal is 1 hour (60 minutes).
-- What happens when the user enters an extremely long goal (e.g., 168 hours / 7 days)? The system caps the maximum goal at 72 hours (4,320 minutes) with a validation message.
-- What happens if the user edits a completed session's goal after the fact? The goal-reached status recalculates based on the new goal vs. the actual session duration.
-- What happens if the browser does not support the Notification API? The system falls back to in-app toast notifications only, with no error shown.
-- What happens if the user starts a fast with a goal, then changes their device/browser? The goal is persisted server-side; on reload, the progress ring resumes from the stored goal and current elapsed time.
-- What happens when the timer crosses the goal threshold while the app tab is inactive? The notification fires when the tab regains focus or via a background timer check, and the celebration plays when the user returns to the tab.
+- What happens if the user enters 0 minutes or a negative value as a custom goal? The system rejects it and shows a validation error.
+- What happens if the user enters an extremely long goal (e.g., 168h / 7 days)? The system caps the maximum goal at 72 hours (3 days) with a validation message.
+- What happens if the user's browser does not support the Notification API? The app falls back to in-app toast only and does not prompt for notification permission.
+- What happens if the user starts a fast, then the app is closed and reopened before the goal is reached? The progress ring recalculates from the persisted start time and current time.
+- What happens if the user changes their default goal while a fast is already in progress? The active session's goal remains unchanged; the new default applies only to future sessions.
+- What happens if the custom input contains non-numeric or invalid characters? The input is validated to accept only valid hour/minute values; invalid input is rejected.
 
 ## Requirements *(mandatory)*
 
 ### Functional Requirements
 
-- **FR-001**: System MUST display quick-select goal options (12h, 16h, 18h, 20h, 24h) as selectable pills on the start screen.
-- **FR-002**: System MUST allow users to enter a custom goal duration with a minimum of 1 hour and maximum of 72 hours.
-- **FR-003**: System MUST persist the selected goal with the fasting session when a fast is started.
-- **FR-004**: System MUST allow starting a fast without selecting a goal (goal is optional).
-- **FR-005**: System MUST display a circular progress ring showing percentage toward the goal during an active fast with a goal set.
-- **FR-006**: System MUST display remaining time (e.g., "4h 23m to go") below or inside the progress ring during an active fast with a goal.
-- **FR-007**: System MUST update the progress ring and remaining time in real time as the fast progresses.
-- **FR-008**: System MUST change the progress ring color from the primary color to the success color when the goal is reached.
-- **FR-009**: System MUST play a celebration animation when the goal is first reached during a session.
-- **FR-010**: System MUST respect `prefers-reduced-motion` for celebration animations (use `motion-safe:` prefix).
-- **FR-011**: System MUST send a browser notification with the text "You've reached your [X]h fasting goal!" when the goal is reached (if notification permission is granted).
-- **FR-012**: System MUST display an in-app toast notification as a fallback when browser notification permission is not granted.
-- **FR-013**: System MUST send the goal notification only once per session (no repeated notifications).
+- **FR-001**: System MUST display quick-select goal pills (12h, 16h, 18h, 20h, 24h) when the user is preparing to start a fast. Pills for known protocols (16h, 18h, 20h, 24h) MUST show a protocol subtitle (e.g., "Intermittent", "Advanced", "Warrior", "OMAD"). The 12h pill has no subtitle. This replaces the existing 2x2 protocol card grid.
+- **FR-002**: System MUST allow the user to enter a custom goal duration in hours and minutes.
+- **FR-003**: System MUST validate custom goal input: minimum 1 hour, maximum 72 hours, no negative or zero values.
+- **FR-004**: System MUST save the selected goal with the fasting session when the fast is started.
+- **FR-005**: System MUST pre-fill the goal selector with the user's default goal (if set in settings) when preparing a new fast.
+- **FR-006**: System MUST display a circular progress ring that replaces the background fill animation when the user is fasting with a goal set. The HH:MM:SS elapsed timer MUST be displayed inside the ring, with percentage and remaining time as secondary labels below.
+- **FR-007**: The progress ring MUST show the elapsed percentage and remaining time (e.g., "8h 23m to go") below the timer. When no goal is set, the existing timer card with fill animation MUST be used instead.
+- **FR-008**: The progress ring MUST animate smoothly as time progresses.
+- **FR-009**: When the goal is reached, the progress ring MUST change to a success color and play a celebration animation (respecting reduced-motion preferences).
+- **FR-010**: System MUST send a browser notification when the fasting goal is reached, if notification permission is granted.
+- **FR-011**: System MUST display an in-app toast notification as a fallback when browser notifications are unavailable or denied. The toast MUST auto-dismiss after 5 seconds and be tap-dismissible.
+- **FR-012**: The notification message MUST read: "You've reached your [X]h fasting goal!" where [X] is the goal duration in hours.
+- **FR-013**: System MUST NOT send duplicate notifications for the same session's goal.
 - **FR-014**: System MUST provide a "Default fasting goal" setting on the settings page.
-- **FR-015**: System MUST pre-fill the goal selection with the user's default goal when starting a new fast.
-- **FR-016**: System MUST allow the user to override the default goal on a per-session basis.
-- **FR-017**: System MUST allow the user to clear the default goal (set to "None").
-- **FR-018**: System MUST show overtime display (e.g., "+1h 15m") when the elapsed time exceeds the goal.
-- **FR-019**: System MUST validate custom goal input (minimum 1 hour, maximum 72 hours, numeric only).
+- **FR-015**: The default goal MUST persist across browser sessions and be editable or clearable at any time.
+- **FR-016**: The default goal MUST NOT affect sessions already in progress; it applies only to new sessions.
+- **FR-017**: When no goal is set for a session, the timer screen MUST display the existing timer without a progress ring.
 
 ### Key Entities
 
-- **Fasting Session**: Represents a single fasting period. Key attributes: start time, end time, goal duration (optional, in minutes), notes. A session may or may not have a goal. If a goal is set, the session tracks progress toward it.
-- **User Settings**: Per-user preferences that persist across sessions. Key attribute for this feature: default goal duration (optional, in minutes). When set, new sessions auto-fill with this goal.
+- **Fasting Session**: Represents an individual fast with start time, end time, and an optional goal duration in minutes. The goal is set at the start of the session and does not change during the fast.
+- **User Settings**: Stores user preferences including an optional default goal duration in minutes. The default goal pre-fills the goal selector for new sessions.
 
 ## Success Criteria *(mandatory)*
 
 ### Measurable Outcomes
 
-- **SC-001**: Users can select a fasting goal and start a fast in under 10 seconds (goal selection adds no more than 2 taps to the start flow).
-- **SC-002**: The progress ring updates smoothly in real time with no visible lag or jank during an active fast.
-- **SC-003**: 100% of goal-reached events trigger exactly one notification (browser or in-app fallback) per session.
-- **SC-004**: Users can configure a default goal in settings in under 15 seconds.
-- **SC-005**: The default goal pre-fills correctly on 100% of new fast starts after being configured.
-- **SC-006**: Goal progress visuals (ring, remaining time, overtime) display accurately within 1 second of real elapsed time.
-- **SC-007**: Celebration animation plays within 1 second of the goal being reached, providing immediate visual feedback.
+- **SC-001**: Users can set a fasting goal (quick-select or custom) and start a fast in under 10 seconds.
+- **SC-002**: The progress ring updates at least once per second and accurately reflects elapsed time within 1 second.
+- **SC-003**: Goal-reached notification fires within 2 seconds of the goal time being met.
+- **SC-004**: Default goal pre-fill works correctly on 100% of new session starts when a default is configured.
+- **SC-005**: Custom goal validation correctly rejects all invalid inputs (zero, negative, exceeding 72h, non-numeric).
+- **SC-006**: The celebration animation and ring color change are visible within 1 second of goal completion.
+
+## Clarifications
+
+### Session 2026-02-26
+
+- Q: Should the existing protocol card grid be replaced by goal pills, kept as-is with custom added, or hybridized? → A: Hybrid — goal pills (12h, 16h, 18h, 20h, 24h) + custom input replace the protocol cards, but protocol names are preserved as subtitles on matching pills.
+- Q: How should the progress ring relate to the existing timer card and fill animation? → A: Replace the fill animation with the progress ring as a unified display. HH:MM:SS timer inside the ring, percentage + "time to go" below. Existing fill animation kept only for no-goal sessions.
+- Q: How long should the in-app toast stay visible and how is it dismissed? → A: Auto-dismiss after 5 seconds, tap-dismissible.
 
 ## Assumptions
 
-- The existing protocol selector (16:8, 18:6, 20:4, 24h grid) will be replaced or augmented with the new goal pill selector (12h, 16h, 18h, 20h, 24h) to align with the epic's design. The quick-select options differ slightly from the current protocol grid.
-- The `goalMinutes` field on `FastingSession` and `defaultGoalMinutes` on `UserSettings` already exist in the database schema and do not require migration.
-- Browser Notification API permission will be requested at the point of goal notification (not proactively on app load). If denied, the in-app toast serves as the sole notification mechanism.
-- The custom goal input accepts hours (with optional minutes), not raw minutes, to match user mental models for fasting durations.
-- The settings page will need navigation access added (currently no link from the main app).
-- The progress ring replaces or augments the existing fill-from-bottom progress animation when a goal is set.
+- The existing 2x2 protocol card grid (16:8, 18:6, 20:4, 24h) is replaced by goal pills (12h, 16h, 18h, 20h, 24h) plus a custom input option. Known protocol names are preserved as subtitles on matching pills (16h→Intermittent, 18h→Advanced, 20h→Warrior, 24h→OMAD). The 12h pill is new and has no protocol subtitle.
+- Browser notifications require a one-time permission grant from the user. The app will request permission at an appropriate moment (e.g., when the user first sets a goal). If the user denies permission, the app gracefully falls back to in-app toasts.
+- When a goal is set, the progress ring replaces the background fill animation as the sole progress indicator. The HH:MM:SS timer, percentage, and "time to go" are all part of this unified ring display. When no goal is set, the existing timer card with fill animation remains unchanged.
+- The celebration animation uses only `transform` and `opacity` properties per the project's animation guidelines.
+- The maximum custom goal of 72 hours is a reasonable upper bound for extended fasting while preventing accidental extreme values.

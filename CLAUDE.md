@@ -100,6 +100,8 @@ Reference PRD: `docs/FastTrack_PRD_v2.md`
 - Vercel Postgres (PostgreSQL) via Prisma — existing `FastingSession` model (007-dashboard-statistics)
 - TypeScript 5 / Node.js 18+ / Next.js 16 (App Router), React 19 + Recharts (new — to be installed), date-fns 4, Tailwind CSS v4, Lucide React, Zod 4 (008-dashboard-charts)
 - Vercel Postgres (PostgreSQL) via Prisma 7 — existing `FastingSession` model (008-dashboard-charts)
+- TypeScript 5 / Node.js 18+ / Next.js 16 (App Router), React 19 + Tailwind CSS v4, Zod 4, Lucide React, date-fns 4 (005-fasting-goal)
+- Vercel Postgres (PostgreSQL) via Prisma 7 — existing `FastingSession.goalMinutes` and `UserSettings.defaultGoalMinutes` fields (no schema changes needed) (005-fasting-goal)
 
 ## Recent Changes
 - 001-authentication: Added TypeScript 5 / Node.js 18+ + Next.js 14+ (App Router), Auth.js v5 (next-auth@beta), Prisma, Vercel Postgres
