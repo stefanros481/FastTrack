@@ -104,7 +104,7 @@ export function DateTimePicker({
                 max={23}
                 value={padTwo(hours)}
                 onChange={(e) => setTime(parseInt(e.target.value) || 0, minutes)}
-                className="w-14 h-10 text-center text-lg font-mono rounded-lg border border-input bg-background tabular-nums"
+                className="w-14 h-10 text-center text-lg font-mono rounded-lg border border-input bg-background text-foreground tabular-nums"
               />
             </div>
             <span className="text-xl font-bold mt-5">:</span>
@@ -116,7 +116,7 @@ export function DateTimePicker({
                 max={59}
                 value={padTwo(minutes)}
                 onChange={(e) => setTime(hours, parseInt(e.target.value) || 0)}
-                className="w-14 h-10 text-center text-lg font-mono rounded-lg border border-input bg-background tabular-nums"
+                className="w-14 h-10 text-center text-lg font-mono rounded-lg border border-input bg-background text-foreground tabular-nums"
               />
             </div>
           </div>

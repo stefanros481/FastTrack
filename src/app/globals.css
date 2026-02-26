@@ -6,17 +6,8 @@
 
 @theme {
   /* Brand (used directly by existing app code) */
-  --color-primary: #4f46e5;
   --color-primary-dark: #4338ca;
   --color-primary-light: #e0e7ff;
-
-  /* Surfaces */
-  --color-background: #f8fafc;
-  --color-card: #ffffff;
-
-  /* Text */
-  --color-text: #1e293b;
-  --color-text-muted: #64748b;
 
   /* Semantic */
   --color-success: #059669;
@@ -73,11 +64,16 @@ body {
   --radius-2xl: calc(var(--radius) + 8px);
   --radius-3xl: calc(var(--radius) + 12px);
   --radius-4xl: calc(var(--radius) + 16px);
+  --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
   --color-popover: var(--popover);
   --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
+  --color-text: var(--foreground);
+  --color-text-muted: var(--muted-foreground);
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
   --color-muted: var(--muted);
