@@ -71,7 +71,7 @@ export function WheelTimePicker({ value, onChange }: WheelTimePickerProps) {
 
       {open && createPortal(
         <div
-          className="fixed inset-0 z-[200] flex items-end justify-center bg-black/80 motion-safe:animate-fade-in"
+          className="fixed inset-0 z-[200] flex items-end justify-center bg-black motion-safe:animate-fade-in"
           onClick={handleCancel}
         >
           <div
