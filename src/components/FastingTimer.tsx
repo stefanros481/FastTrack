@@ -31,6 +31,7 @@ import WeeklyChart from "@/components/WeeklyChart";
 import GoalRateChart from "@/components/GoalRateChart";
 import ChartSkeleton from "@/components/ChartSkeleton";
 import Toast from "@/components/Toast";
+import StartTimeAdjuster from "@/components/StartTimeAdjuster";
 import { useChartData } from "@/hooks/useChartData";
 import { useGoalNotification } from "@/hooks/useGoalNotification";
 
@@ -145,6 +146,7 @@ export default function FastingTimer({ activeFast, stats, defaultGoalMinutes }: 
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [isPending, startTransition] = useTransition();
   const [confirmingEnd, setConfirmingEnd] = useState(false);
+  const [showStartTimeAdjuster, setShowStartTimeAdjuster] = useState(false);
 
   const isFasting = !!currentFast;
   const startTimeMs = currentFast ? new Date(currentFast.startedAt).getTime() : null;
@@ -260,11 +262,15 @@ export default function FastingTimer({ activeFast, stats, defaultGoalMinutes }: 
                   }
                 />
                 {startTimeMs && (
-                  <div className="flex items-center gap-2 text-xs text-slate-500 bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-full mt-4" suppressHydrationWarning>
+                  <button
+                    onClick={() => setShowStartTimeAdjuster(true)}
+                    className="flex items-center gap-2 text-xs text-slate-500 bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-full mt-4 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors active:scale-95 min-h-11"
+                    suppressHydrationWarning
+                  >
                     <Moon size={12} />
                     Started {formatDateLabel(currentFast.startedAt)} @{" "}
                     {formatTimeLabel(currentFast.startedAt)}
-                  </div>
+                  </button>
                 )}
               </div>
             ) : (
@@ -286,11 +292,15 @@ export default function FastingTimer({ activeFast, stats, defaultGoalMinutes }: 
                   {formatTime(elapsedSeconds)}
                 </div>
                 {isFasting && startTimeMs && (
-                  <div className="flex items-center gap-2 text-xs text-slate-500 bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-full relative z-10" suppressHydrationWarning>
+                  <button
+                    onClick={() => setShowStartTimeAdjuster(true)}
+                    className="flex items-center gap-2 text-xs text-slate-500 bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-full relative z-10 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors active:scale-95 min-h-11"
+                    suppressHydrationWarning
+                  >
                     <Moon size={12} />
                     Started {formatDateLabel(currentFast!.startedAt)} @{" "}
                     {formatTimeLabel(currentFast!.startedAt)}
-                  </div>
+                  </button>
                 )}
               </div>
             )}
@@ -401,6 +411,20 @@ export default function FastingTimer({ activeFast, stats, defaultGoalMinutes }: 
 
       {/* Toast notification */}
       {showToast && <Toast message={toastMessage} onDismiss={dismissToast} />}
+
+      {/* Start time adjuster (spinning wheel picker) */}
+      {showStartTimeAdjuster && currentFast && (
+        <StartTimeAdjuster
+          sessionId={currentFast.id}
+          currentStartedAt={currentFast.startedAt}
+          onClose={() => setShowStartTimeAdjuster(false)}
+          onUpdated={(newStartedAt) => {
+            setCurrentFast((prev) =>
+              prev ? { ...prev, startedAt: newStartedAt } : prev
+            );
+          }}
+        />
+      )}
 
       {/* Bottom Navigation */}
       <nav className="fixed bottom-0 left-0 right-0 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-t border-slate-200 dark:border-slate-800 flex justify-around p-4 pb-8 z-50">

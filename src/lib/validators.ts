@@ -34,6 +34,18 @@ export const deleteSessionSchema = z.object({
 
 export type DeleteSessionInput = z.infer<typeof deleteSessionSchema>;
 
+export const activeStartTimeSchema = z
+  .object({
+    sessionId: z.string().min(1),
+    startedAt: z.coerce.date(),
+  })
+  .refine((data) => data.startedAt <= new Date(), {
+    message: "Start time cannot be in the future",
+    path: ["startedAt"],
+  });
+
+export type ActiveStartTimeInput = z.infer<typeof activeStartTimeSchema>;
+
 export const goalMinutesSchema = z.number().int().min(60).max(4320);
 
 export const customGoalHoursSchema = z.number().min(1).max(72).positive();

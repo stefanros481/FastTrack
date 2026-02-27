@@ -7,6 +7,7 @@ import {
   sessionEditSchema,
   noteSchema,
   deleteSessionSchema,
+  activeStartTimeSchema,
 } from "@/lib/validators";
 import {
   startOfDay,
@@ -156,6 +157,60 @@ export async function updateSession(
   await prisma.fastingSession.update({
     where: { id: sessionId, userId },
     data: { startedAt, endedAt },
+  });
+
+  revalidatePath("/");
+  return { success: true };
+}
+
+export type UpdateActiveStartTimeResult =
+  | { success: true }
+  | { success: false; error: string };
+
+export async function updateActiveStartTime(
+  sessionId: string,
+  newStartedAt: Date
+): Promise<UpdateActiveStartTimeResult> {
+  const userId = await getUserId();
+
+  const parsed = activeStartTimeSchema.safeParse({
+    sessionId,
+    startedAt: newStartedAt,
+  });
+  if (!parsed.success) {
+    const firstIssue = parsed.error.issues[0];
+    return { success: false, error: firstIssue.message };
+  }
+
+  // Verify session belongs to user and is active
+  const existing = await prisma.fastingSession.findFirst({
+    where: { id: sessionId, userId, endedAt: null },
+  });
+  if (!existing) {
+    return { success: false, error: "Active session not found" };
+  }
+
+  // Check overlap with completed sessions
+  // Active session spans [newStartedAt, now). A completed session overlaps
+  // if its endedAt > newStartedAt AND its startedAt < now.
+  const overlap = await prisma.fastingSession.findFirst({
+    where: {
+      userId,
+      id: { not: sessionId },
+      AND: [
+        { endedAt: { not: null } },
+        { endedAt: { gt: newStartedAt } },
+      ],
+      startedAt: { lt: new Date() },
+    },
+  });
+  if (overlap) {
+    return { success: false, error: "This overlaps with another session" };
+  }
+
+  await prisma.fastingSession.update({
+    where: { id: sessionId, userId },
+    data: { startedAt: newStartedAt },
   });
 
   revalidatePath("/");
