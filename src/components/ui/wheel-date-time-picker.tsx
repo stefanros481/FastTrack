@@ -138,49 +138,52 @@ export function WheelDateTimePicker({
               </button>
             </div>
 
-            <WheelPickerWrapper className="w-full">
-              <WheelPicker
-                options={dateOptions}
-                value={selectedDate}
-                onValueChange={setSelectedDate}
-                classNames={{
-                  optionItem:
-                    "text-[--color-text-muted] text-base",
-                  highlightWrapper:
-                    "bg-[--color-secondary] rounded-lg",
-                  highlightItem:
-                    "font-semibold text-[--color-text] text-base",
-                }}
-              />
-              <WheelPicker
-                options={hourOptions}
-                value={selectedHour}
-                onValueChange={setSelectedHour}
-                infinite
-                classNames={{
-                  optionItem:
-                    "text-[--color-text-muted] text-base",
-                  highlightWrapper:
-                    "bg-[--color-secondary] rounded-lg",
-                  highlightItem:
-                    "font-semibold text-[--color-text] text-base",
-                }}
-              />
-              <WheelPicker
-                options={minuteOptions}
-                value={selectedMinute}
-                onValueChange={setSelectedMinute}
-                infinite
-                classNames={{
-                  optionItem:
-                    "text-[--color-text-muted] text-base",
-                  highlightWrapper:
-                    "bg-[--color-secondary] rounded-lg",
-                  highlightItem:
-                    "font-semibold text-[--color-text] text-base",
-                }}
-              />
-            </WheelPickerWrapper>
+            <div className="relative">
+              <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 h-[2.5rem] bg-[--color-secondary] rounded-lg pointer-events-none" />
+              <WheelPickerWrapper className="w-full relative">
+                <WheelPicker
+                  options={dateOptions}
+                  value={selectedDate}
+                  onValueChange={setSelectedDate}
+                  classNames={{
+                    optionItem:
+                      "text-[--color-text-muted] text-base",
+                    highlightWrapper:
+                      "rounded-lg",
+                    highlightItem:
+                      "font-semibold text-[--color-text] text-base",
+                  }}
+                />
+                <WheelPicker
+                  options={hourOptions}
+                  value={selectedHour}
+                  onValueChange={setSelectedHour}
+                  infinite
+                  classNames={{
+                    optionItem:
+                      "text-[--color-text-muted] text-base",
+                    highlightWrapper:
+                      "rounded-lg",
+                    highlightItem:
+                      "font-semibold text-[--color-text] text-base",
+                  }}
+                />
+                <WheelPicker
+                  options={minuteOptions}
+                  value={selectedMinute}
+                  onValueChange={setSelectedMinute}
+                  infinite
+                  classNames={{
+                    optionItem:
+                      "text-[--color-text-muted] text-base",
+                    highlightWrapper:
+                      "rounded-lg",
+                    highlightItem:
+                      "font-semibold text-[--color-text] text-base",
+                  }}
+                />
+              </WheelPickerWrapper>
+            </div>
           </div>
         </div>
       )}
