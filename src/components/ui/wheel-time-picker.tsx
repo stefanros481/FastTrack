@@ -108,7 +108,7 @@ export function WheelTimePicker({ value, onChange }: WheelTimePickerProps) {
                   infinite
                   classNames={{
                     optionItem:
-                      "text-[--color-text-muted] text-base",
+                      "text-[--color-text-muted] text-base opacity-40",
                     highlightWrapper:
                       "rounded-lg",
                     highlightItem:
@@ -122,7 +122,7 @@ export function WheelTimePicker({ value, onChange }: WheelTimePickerProps) {
                   infinite
                   classNames={{
                     optionItem:
-                      "text-[--color-text-muted] text-base",
+                      "text-[--color-text-muted] text-base opacity-40",
                     highlightWrapper:
                       "rounded-lg",
                     highlightItem:

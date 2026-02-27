@@ -192,3 +192,14 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+/* Override react-wheel-picker: remove mask that punches transparent holes through the bottom sheet */
+[data-rwp] {
+  -webkit-mask-image: none !important;
+  mask-image: none !important;
+}
+
+/* Constrain wheel picker height so non-highlighted items don't overflow */
+[data-rwp-wrapper] {
+  max-height: 280px;
+}
