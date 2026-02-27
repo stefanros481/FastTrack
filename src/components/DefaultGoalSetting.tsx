@@ -54,11 +54,22 @@ export default function DefaultGoalSetting({
     }
   };
 
+  const currentLabel = selected
+    ? isCustom
+      ? `${(selected / 60).toFixed(1).replace(/\.0$/, "")}h`
+      : GOAL_OPTIONS.find((o) => o.minutes === selected)?.label ?? `${(selected / 60).toFixed(1).replace(/\.0$/, "")}h`
+    : "None";
+
   return (
-    <div className="border-b border-slate-100 dark:border-slate-800 pb-4">
-      <h3 className="text-base font-medium text-[--color-text] mb-3">
-        Default fasting goal
-      </h3>
+    <div>
+      <div className="flex items-center justify-between mb-3">
+        <h3 className="text-base font-medium text-[--color-text]">
+          Default fasting goal
+        </h3>
+        <span className="text-sm font-semibold text-[--color-primary]">
+          {currentLabel}
+        </span>
+      </div>
       <div className="flex flex-wrap gap-2">
         {GOAL_OPTIONS.map((option) => {
           const isSelected =
@@ -70,8 +81,8 @@ export default function DefaultGoalSetting({
               disabled={isPending}
               className={`min-h-11 min-w-11 px-4 py-2 rounded-full font-semibold text-sm transition-all ${
                 isSelected
-                  ? "bg-[--color-primary] text-white"
-                  : "bg-[--color-primary-light] text-[--color-primary-dark]"
+                  ? "bg-[--color-primary] text-[--color-primary-foreground]"
+                  : "bg-[--color-secondary] text-[--color-text]"
               } ${isPending ? "opacity-60" : ""}`}
             >
               {option.label}
@@ -83,8 +94,8 @@ export default function DefaultGoalSetting({
           disabled={isPending}
           className={`min-h-11 min-w-11 px-4 py-2 rounded-full font-semibold text-sm transition-all ${
             isCustom
-              ? "bg-[--color-primary] text-white"
-              : "bg-[--color-primary-light] text-[--color-primary-dark]"
+              ? "bg-[--color-primary] text-[--color-primary-foreground]"
+              : "bg-[--color-secondary] text-[--color-text]"
           } ${isPending ? "opacity-60" : ""}`}
         >
           Custom

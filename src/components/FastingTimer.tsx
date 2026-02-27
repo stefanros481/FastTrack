@@ -16,7 +16,9 @@ import {
   BarChart3,
   Sun,
   Monitor,
+  Settings,
 } from "lucide-react";
+import Link from "next/link";
 import { startFast, stopFast } from "@/app/actions/fasting";
 import type { FastingStats } from "@/app/actions/fasting";
 import { updateTheme } from "@/app/actions/settings";
@@ -438,6 +440,15 @@ export default function FastingTimer({ activeFast, stats, defaultGoalMinutes }: 
             Log
           </span>
         </button>
+        <Link
+          href="/settings"
+          className="flex flex-col items-center gap-1 transition-all text-slate-400"
+        >
+          <Settings size={24} />
+          <span className="text-[10px] font-bold uppercase tracking-tighter">
+            Settings
+          </span>
+        </Link>
       </nav>
     </div>
   );

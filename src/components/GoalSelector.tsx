@@ -89,14 +89,14 @@ export default function GoalSelector({
               onClick={() => handlePillClick(option.hours)}
               className={`flex-shrink-0 min-h-11 min-w-11 px-4 py-2 rounded-full font-semibold text-sm transition-all ${
                 isSelected
-                  ? "bg-[--color-primary] text-white"
-                  : "bg-[--color-primary-light] text-[--color-primary-dark]"
+                  ? "bg-[--color-primary] text-[--color-primary-foreground]"
+                  : "bg-[--color-secondary] text-[--color-text]"
               }`}
             >
               <div>{option.label}</div>
               {option.subtitle && (
                 <div
-                  className={`text-[10px] font-normal ${isSelected ? "text-white/80" : "text-[--color-text-muted]"}`}
+                  className={`text-[10px] font-normal ${isSelected ? "text-[--color-primary-foreground]/80" : "text-[--color-text-muted]"}`}
                 >
                   {option.subtitle}
                 </div>
@@ -108,8 +108,8 @@ export default function GoalSelector({
           onClick={handleCustomClick}
           className={`flex-shrink-0 min-h-11 min-w-11 px-4 py-2 rounded-full font-semibold text-sm transition-all ${
             isCustom
-              ? "bg-[--color-primary] text-white"
-              : "bg-[--color-primary-light] text-[--color-primary-dark]"
+              ? "bg-[--color-primary] text-[--color-primary-foreground]"
+              : "bg-[--color-secondary] text-[--color-text]"
           }`}
         >
           Custom

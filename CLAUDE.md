@@ -34,6 +34,19 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **Key auth files:** `src/lib/auth.ts`, `src/lib/auth.config.ts`, `src/lib/authorized-emails.ts`, `middleware.ts`, `src/app/auth/signin/page.tsx`, `src/app/api/auth/[...nextauth]/route.ts`
 
+## Settings Page
+
+Settings page at `/settings` with sections: Profile, Fasting, Notifications, Appearance, Account.
+
+**Key files:**
+- `src/app/settings/page.tsx` — server component, fetches all settings data
+- `src/app/actions/settings.ts` — server actions: getUserProfile, getTheme, updateTheme, getDefaultGoal, updateDefaultGoal, getNotificationSettings, updateReminderSettings, updateMaxDuration
+- `src/components/UserProfile.tsx` — avatar (Google image or letter fallback) + name + email
+- `src/components/ThemeSelector.tsx` — 3-button segmented control (dark/system/light), uses ThemeProvider context
+- `src/components/DefaultGoalSetting.tsx` — preset + custom goal selection
+- `src/components/NotificationSettings.tsx` — reminder toggle, time picker, max duration alert
+- `src/components/SignOutButton.tsx` — sign out with redirect to sign-in page
+
 ## Design System
 
 Design tokens are defined in `src/index.css` `@theme` block and consumed via `var(--token-name)` or Tailwind utilities.
@@ -106,6 +119,8 @@ Reference PRD: `docs/FastTrack_PRD_v2.md`
 - Vercel Postgres (PostgreSQL) via Prisma 7 — existing `FastingSession.goalMinutes` and `UserSettings.defaultGoalMinutes` fields (no schema changes needed) (005-fasting-goal)
 - TypeScript 5 / Node.js 18+ + Next.js 16 (App Router), React 19, Auth.js v5 (next-auth@beta), Prisma 7, Tailwind CSS v4 (009-multi-user-support)
 - Vercel Postgres (PostgreSQL) via Prisma — existing `User`, `UserSettings`, `FastingSession` models (no schema changes) (009-multi-user-support)
+- TypeScript 5 / Node.js 18+ + Next.js 16 (App Router), React 19, Auth.js v5, Prisma 7, Tailwind CSS v4, Lucide Reac (010-user-settings)
+- Vercel Postgres (PostgreSQL) via Prisma — existing `User` and `UserSettings` models (no schema changes) (010-user-settings)
 
 ## Recent Changes
 - 001-authentication: Added TypeScript 5 / Node.js 18+ + Next.js 14+ (App Router), Auth.js v5 (next-auth@beta), Prisma, Vercel Postgres
