@@ -1,4 +1,5 @@
 import { signIn } from "@/lib/auth";
+import { getAuthorizedEmails } from "@/lib/authorized-emails";
 import { Flame, Timer, BarChart3, Zap } from "lucide-react";
 
 interface Props {
@@ -88,14 +89,26 @@ export default async function SignInPage({ searchParams }: Props) {
 
           {process.env.NODE_ENV === "development" && (
             <form
-              action={async () => {
+              action={async (formData: FormData) => {
                 "use server";
-                await signIn("dev-credentials", { redirectTo: "/" });
+                const email = formData.get("email") as string;
+                await signIn("dev-credentials", { email, redirectTo: "/" });
               }}
+              className="mt-3"
             >
+              <select
+                name="email"
+                className="w-full mb-2 rounded-2xl min-h-12 px-4 border border-amber-300 bg-amber-50 text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-amber-500"
+              >
+                {getAuthorizedEmails().map((email) => (
+                  <option key={email} value={email}>
+                    {email}
+                  </option>
+                ))}
+              </select>
               <button
                 type="submit"
-                className="w-full mt-3 bg-amber-600 text-white rounded-2xl min-h-12 px-6 font-semibold hover:bg-amber-700 transition-colors flex items-center justify-center gap-2"
+                className="w-full bg-amber-600 text-white rounded-2xl min-h-12 px-6 font-semibold hover:bg-amber-700 transition-colors flex items-center justify-center gap-2"
               >
                 Dev Login
               </button>

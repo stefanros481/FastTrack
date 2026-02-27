@@ -1,8 +1,8 @@
 <!--
 Sync Impact Report
-Version change: (none) → 1.0.0
-Added sections: Core Principles (5), Technical Stack, Development Workflow, Governance
-Modified principles: N/A (initial ratification)
+Version change: 1.0.0 → 2.0.0
+Modified principles: II. Security by Default (single-user → multi-user allowlist, up to 5)
+Modified principles: V. Premium Simplicity (PRD v2.0 → v2.1 reference)
 Templates requiring updates:
   ✅ plan-template.md — Constitution Check section present; gates align with 5 principles below
   ✅ spec-template.md — no structural changes required
@@ -29,12 +29,16 @@ start/stop flow breaks the habit loop. Every added tap has a real cost.
 All routes except `/auth/*` and `/api/auth/*` MUST be protected by `middleware.ts`. Server
 actions and API routes MUST verify the authenticated session via `auth()` before executing any
 logic. All database queries MUST be scoped to the authenticated `userId` — no cross-user data
-access is ever acceptable. The authorized user MUST be restricted to the single email in
-`AUTHORIZED_EMAIL`; any other sign-in attempt MUST be rejected at the callback level.
+access is ever acceptable. Access MUST be restricted to up to 5 email addresses listed in
+`AUTHORIZED_EMAILS` (comma-separated); any email not in the allowlist MUST be rejected at the
+sign-in callback level. The middleware MUST re-validate the user's email against the allowlist
+on every request, ensuring immediate revocation when an email is removed. Each user's data
+MUST be fully isolated — no user can access another user's sessions, settings, or statistics.
 No public-facing API endpoints MUST exist.
 
-**Rationale**: This is a personal health data app. A single unauthorized access is an
-unacceptable failure. Defense must be layered (middleware + action-level checks).
+**Rationale**: This is a health data app shared by a small trusted group. A single unauthorized
+access or cross-user data leak is an unacceptable failure. Defense must be layered (middleware +
+action-level checks + per-user query scoping).
 
 ### III. Server-First Architecture
 
@@ -65,7 +69,7 @@ The UI MUST use the defined design token system (`--color-*`, typography scale, 
 — ad-hoc hex values and custom spacing MUST NOT be introduced. All entrance and celebration
 animations MUST use the `motion-safe:animate-*` prefix. Error feedback animations (`animate-shake`)
 MUST NOT use `motion-safe:` — they are functional, not decorative. Features MUST NOT be added
-beyond the defined scope (see PRD v2.0 Section 11). Dark mode is the default; light mode is a
+beyond the defined scope (see PRD v2.1 Section 11). Dark mode is the default; light mode is a
 user-toggled preference stored server-side.
 
 **Rationale**: Visual consistency and restraint are what make a personal tool feel trustworthy
@@ -119,4 +123,4 @@ gates to principles I–V before Phase 0 research begins, and re-checks after Ph
 
 **Runtime guidance**: See `CLAUDE.md` at the repository root for agent-specific conventions.
 
-**Version**: 1.0.0 | **Ratified**: 2026-02-22 | **Last Amended**: 2026-02-22
+**Version**: 2.0.0 | **Ratified**: 2026-02-22 | **Last Amended**: 2026-02-27

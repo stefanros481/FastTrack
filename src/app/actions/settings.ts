@@ -1,3 +1,4 @@
+// Multi-user audit (009): all queries scoped by userId via getUserId() ✓
 "use server";
 
 import { auth } from "@/lib/auth";

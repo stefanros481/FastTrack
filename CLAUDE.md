@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**FastTrack** is a mobile-first fasting tracker web app for a single authenticated user. Core workflow: start a fast, stop a fast, review history. Built for personal deployment on Vercel.
+**FastTrack** is a mobile-first fasting tracker web app for up to 5 authorized users. Core workflow: start a fast, stop a fast, review history. Built for personal deployment on Vercel.
 
 ## Tech Stack
 
@@ -24,13 +24,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 - Google OAuth as primary provider; GitHub as optional secondary
 - JWT session strategy (stateless, no session table)
-- Single authorized user: `AUTHORIZED_EMAIL` env var — all other emails are rejected
-- `middleware.ts` at project root protects all routes except `/auth/*` and `/api/auth/*`
+- Up to 5 authorized users: `AUTHORIZED_EMAILS` env var (comma-separated) — all other emails are rejected. Fallback to `AUTHORIZED_EMAIL` (singular) for backward compatibility
+- `middleware.ts` at project root protects all routes except `/auth/*`, `/api/auth/*`, `/_next/*`, `/favicon.ico`, `/robots.txt`
+- Per-request email allowlist validation in middleware `authorized` callback
 - JWT session duration: 30 days with sliding window refresh
+- Each user's data is fully isolated — all queries scoped by `userId`
 
-**Required env vars:** `AUTH_SECRET`, `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET`, `AUTHORIZED_EMAIL`, `fast_track_DATABASE_URL_UNPOOLED`
+**Required env vars:** `AUTH_SECRET`, `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET`, `AUTHORIZED_EMAILS`, `fast_track_DATABASE_URL_UNPOOLED`
 
-**Key auth files:** `src/lib/auth.ts`, `src/middleware.ts`, `src/app/auth/signin/page.tsx`, `src/app/api/auth/[...nextauth]/route.ts`
+**Key auth files:** `src/lib/auth.ts`, `src/lib/auth.config.ts`, `src/lib/authorized-emails.ts`, `middleware.ts`, `src/app/auth/signin/page.tsx`, `src/app/api/auth/[...nextauth]/route.ts`
 
 ## Design System
 
@@ -102,6 +104,8 @@ Reference PRD: `docs/FastTrack_PRD_v2.md`
 - Vercel Postgres (PostgreSQL) via Prisma 7 — existing `FastingSession` model (008-dashboard-charts)
 - TypeScript 5 / Node.js 18+ / Next.js 16 (App Router), React 19 + Tailwind CSS v4, Zod 4, Lucide React, date-fns 4 (005-fasting-goal)
 - Vercel Postgres (PostgreSQL) via Prisma 7 — existing `FastingSession.goalMinutes` and `UserSettings.defaultGoalMinutes` fields (no schema changes needed) (005-fasting-goal)
+- TypeScript 5 / Node.js 18+ + Next.js 16 (App Router), React 19, Auth.js v5 (next-auth@beta), Prisma 7, Tailwind CSS v4 (009-multi-user-support)
+- Vercel Postgres (PostgreSQL) via Prisma — existing `User`, `UserSettings`, `FastingSession` models (no schema changes) (009-multi-user-support)
 
 ## Recent Changes
 - 001-authentication: Added TypeScript 5 / Node.js 18+ + Next.js 14+ (App Router), Auth.js v5 (next-auth@beta), Prisma, Vercel Postgres

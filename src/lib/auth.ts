@@ -1,22 +1,24 @@
 import NextAuth from "next-auth";
 import { prisma } from "@/lib/prisma";
 import { authConfig } from "@/lib/auth.config";
+import { isAuthorizedEmail } from "@/lib/authorized-emails";
 
 export const { auth, handlers, signIn, signOut } = NextAuth({
   ...authConfig,
   callbacks: {
     ...authConfig.callbacks,
     async signIn({ user }) {
-      if (user.email !== process.env.AUTHORIZED_EMAIL) return false;
+      if (!isAuthorizedEmail(user.email)) return false;
+      const email = user.email!;
 
       await prisma.user.upsert({
-        where: { email: user.email },
+        where: { email },
         update: {
           name: user.name,
           image: user.image,
         },
         create: {
-          email: user.email!,
+          email,
           name: user.name,
           image: user.image,
           settings: { create: {} },
