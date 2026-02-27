@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { createPortal } from "react-dom";
 import {
   WheelPicker,
   WheelPickerWrapper,
@@ -68,7 +69,7 @@ export function WheelTimePicker({ value, onChange }: WheelTimePickerProps) {
         {value || "00:00"}
       </button>
 
-      {open && (
+      {open && createPortal(
         <div
           className="fixed inset-0 z-[200] flex items-end justify-center bg-black/40 motion-safe:animate-fade-in"
           onClick={handleCancel}
@@ -131,7 +132,8 @@ export function WheelTimePicker({ value, onChange }: WheelTimePickerProps) {
               </WheelPickerWrapper>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   );
