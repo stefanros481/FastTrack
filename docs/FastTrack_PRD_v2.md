@@ -1,27 +1,27 @@
 # Product Requirements Document (PRD)
 # FastTrack — Fasting Tracker App
 
-**Version:** 2.0  
-**Date:** February 22, 2026  
+**Version:** 2.1
+**Date:** February 27, 2026
 **Status:** Draft  
 
 ---
 
 ## 1. Overview
 
-FastTrack is a mobile-first web application that enables users to track intermittent fasting sessions with ease. Users can start and stop fasts with a single tap, review their fasting history on a dashboard with statistics and charts, set duration goals, add notes, and edit session times when needed. The app is built on Next.js, deployed to Vercel, secured with Auth.js, and backed by Vercel Postgres.
+FastTrack is a mobile-first web application that enables a small group of users (up to 5) to track intermittent fasting sessions with ease. Users can start and stop fasts with a single tap, review their fasting history on a dashboard with statistics and charts, set duration goals, add notes, and edit session times when needed. Each user's data and settings are completely private — there is no cross-user visibility. The app is built on Next.js, deployed to Vercel, secured with Auth.js, and backed by Vercel Postgres.
 
 ---
 
 ## 2. Problem Statement
 
-People practicing intermittent fasting need a simple, reliable way to log when they start and stop eating. Existing solutions are either bloated with unnecessary features, locked behind subscriptions, or lack a premium feel. FastTrack focuses on the core workflow — start, stop, review — and wraps it in a calm, trustworthy interface that makes fasting feel effortless.
+People practicing intermittent fasting need a simple, reliable way to log when they start and stop eating. Existing solutions are either bloated with unnecessary features, locked behind subscriptions, or lack a premium feel. FastTrack focuses on the core workflow — start, stop, review — and wraps it in a calm, trustworthy interface that makes fasting feel effortless. The app supports a small household or friend group (up to 5 users) while keeping each person's data completely private.
 
 ---
 
 ## 3. Target User
 
-Single user (the app owner) who practices intermittent fasting and wants a secure, personal, premium-feeling tracker deployed on their own Vercel account.
+A small group of up to 5 users (the app owner and their household members or friends) who practice intermittent fasting and want a secure, private, premium-feeling tracker deployed on the owner's Vercel account. The owner manages the allowlist of authorized emails. Each user's fasting data and settings are completely isolated — no user can see another's data.
 
 ---
 
@@ -31,7 +31,7 @@ Single user (the app owner) who practices intermittent fasting and wants a secur
 |------|--------|
 | Frictionless session tracking | Start/stop a fast in ≤ 2 taps |
 | Data reliability | 100% of sessions persisted in Vercel Postgres |
-| Secure access | Only authenticated user can access the app |
+| Secure access | Only authorized users (up to 5) can access the app |
 | Edit confidence | User can correct any session time in ≤ 3 taps |
 | Delight | Premium feel — no visual clutter, smooth interactions |
 
@@ -71,7 +71,7 @@ Auth.js (NextAuth.js v5) handles all authentication concerns.
 
 - **Provider:** Google OAuth (primary). GitHub as optional secondary.
 - **Session strategy:** JWT (stateless, no session table needed)
-- **Authorized user:** Restrict login to a single email address via environment variable (`AUTHORIZED_EMAIL`). Any other email is rejected at sign-in.
+- **Authorized users:** Restrict login to up to 5 email addresses via environment variable (`AUTHORIZED_EMAILS`, comma-separated). Any email not in the list is rejected at sign-in. Maximum 5 entries enforced at validation time.
 - **Middleware:** `middleware.ts` at project root protects all routes except `/auth/*` and `/api/auth/*`
 
 **Environment variables required:**
@@ -81,17 +81,19 @@ Auth.js (NextAuth.js v5) handles all authentication concerns.
 | `AUTH_SECRET` | Auth.js encryption secret |
 | `AUTH_GOOGLE_ID` | Google OAuth client ID |
 | `AUTH_GOOGLE_SECRET` | Google OAuth client secret |
-| `AUTHORIZED_EMAIL` | The single email allowed to log in |
+| `AUTHORIZED_EMAILS` | Comma-separated list of up to 5 emails allowed to log in (e.g., `alice@example.com,bob@example.com`) |
 | `POSTGRES_URL` | Vercel Postgres connection string (auto-provisioned) |
 | `POSTGRES_URL_NON_POOLING` | Direct connection for Prisma migrations |
 
 **Security rules:**
 
 - All pages and API routes require authentication (enforced by middleware)
-- Sign-in callback rejects any email that does not match `AUTHORIZED_EMAIL`
+- Sign-in callback rejects any email that is not in the `AUTHORIZED_EMAILS` list
+- Maximum 5 authorized emails enforced — additional entries are ignored
 - JWT tokens expire after 30 days (configurable)
 - CSRF protection is handled automatically by Auth.js
 - No public-facing pages exist except the sign-in page
+- Each user's data is scoped to their own `userId` — no cross-user data access is possible
 
 ### 5.3 Database Schema (Prisma)
 
@@ -151,9 +153,11 @@ model UserSettings {
 
 - `FastingSession.endedAt` is nullable — a null value means the fast is currently active
 - Composite index on `(userId, startedAt DESC)` for fast history queries
-- `UserSettings` is a 1:1 relation — created on first login
+- `UserSettings` is a 1:1 relation — created on first login for each user
 - `onDelete: Cascade` ensures cleanup if user record is removed
 - `note` is capped at 280 characters at the database level
+- Multi-user support: each user gets their own `User` record, `UserSettings`, and `FastingSession` records — all queries are scoped by `userId`
+- Up to 5 users can be authorized via the `AUTHORIZED_EMAILS` env var; each gets a separate `User` row on first sign-in
 
 ### 5.4 API Design (Server Actions + API Routes)
 
@@ -326,9 +330,9 @@ Charts rendered client-side with Recharts, data fetched via API route.
 ### 7.2 Security
 
 - Auth.js middleware protects every route
-- Single authorized email enforced at sign-in callback
+- Authorized email allowlist (up to 5) enforced at sign-in callback via `AUTHORIZED_EMAILS`
 - JWT sessions with HTTP-only cookies
-- All database queries scoped to authenticated `userId`
+- All database queries scoped to authenticated `userId` — strict data isolation between users
 - CSRF protection via Auth.js
 - Environment secrets stored in Vercel project settings
 - No public API endpoints
@@ -383,17 +387,18 @@ FastTrack App
 
 ### Epic 1: Authentication
 
-**US-1.0 — Secure sign-in**  
-*As the app owner, I want to sign in with my Google account so that only I can access my fasting data.*
+**US-1.0 — Secure sign-in**
+*As an authorized user, I want to sign in with my Google account so that only I and other authorized users can access the app.*
 
 - **Acceptance criteria:**
   - Navigating to any page while unauthenticated redirects to `/auth/signin`
   - Sign-in page shows a "Sign in with Google" button styled to match the premium aesthetic
-  - Only the email matching `AUTHORIZED_EMAIL` env var is allowed to sign in
+  - Only emails listed in the `AUTHORIZED_EMAILS` env var (up to 5, comma-separated) are allowed to sign in
   - Any other email sees an error: "This app is private. Access denied."
   - After successful sign-in, user is redirected to the home page
   - A `User` record is created in the database on first sign-in (upsert)
   - `UserSettings` record is created with defaults on first sign-in
+  - Each authorized user gets their own isolated data space — no cross-user visibility
 
 **US-1.1 — Sign out**  
 *As a user, I want to sign out so that my session is terminated.*
@@ -675,13 +680,14 @@ git push origin main  # Vercel auto-deploys
 
 ## 11. Out of Scope (v1.0)
 
-- Multi-user support / user registration
+- Open user registration (users are added only via owner-managed `AUTHORIZED_EMAILS` allowlist, max 5)
 - Cloud sync across devices (already handled — it's a server-rendered app)
-- Social features
+- Social features / cross-user visibility (each user's data is fully private)
 - Health app integrations (Apple Health, Google Fit)
 - Export to CSV/JSON (considered for v1.1)
 - PWA install prompt (considered for v1.1)
 - Multiple simultaneous fasts
+- Admin dashboard for user management (users are managed via env var)
 
 ---
 
@@ -689,7 +695,7 @@ git push origin main  # Vercel auto-deploys
 
 | Phase | Scope | Target |
 |-------|-------|--------|
-| v1.0 MVP | Auth, session tracking, editing, notes, goals, dashboard (history + stats + charts), notifications, dark/light theme | First deploy |
+| v1.0 MVP | Auth (up to 5 users), session tracking, editing, notes, goals, dashboard (history + stats + charts), notifications, dark/light theme | First deploy |
 | v1.1 | PWA support, CSV/JSON export, onboarding flow | Follow-up |
 | v1.2 | Fasting protocol templates, streaks gamification | Future |
 
