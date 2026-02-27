@@ -112,7 +112,7 @@ export function WheelDateTimePicker({
 
       {open && createPortal(
         <div
-          className="fixed inset-0 z-[200] flex items-end justify-center bg-black/40 motion-safe:animate-fade-in"
+          className="fixed inset-0 z-[200] flex items-end justify-center bg-black/80 motion-safe:animate-fade-in"
           onClick={handleCancel}
         >
           <div
