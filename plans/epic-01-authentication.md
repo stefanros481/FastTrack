@@ -1,25 +1,26 @@
 # Epic 1: Authentication
 
-Secure the app so only the owner can access it. All routes are protected by Auth.js middleware; the sign-in page is the only public surface.
+Secure the app so only authorized users (up to 5, managed via env var) can access it. All routes are protected by Auth.js middleware; the sign-in page is the only public surface. Each user's data is fully isolated — no cross-user visibility.
 
 **Stack:** Auth.js (NextAuth.js v5) · Google OAuth · JWT sessions · `middleware.ts`
 
-**Env vars required:** `AUTH_SECRET`, `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET`, `AUTHORIZED_EMAIL`, `POSTGRES_URL`, `POSTGRES_URL_NON_POOLING`
+**Env vars required:** `AUTH_SECRET`, `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET`, `AUTHORIZED_EMAILS` (comma-separated, max 5), `POSTGRES_URL`, `POSTGRES_URL_NON_POOLING`
 
 ---
 
 ## US-1.0 — Secure sign-in
 
-*As the app owner, I want to sign in with my Google account so that only I can access my fasting data.*
+*As an authorized user, I want to sign in with my Google account so that only I and other authorized users can access the app.*
 
 **Acceptance criteria:**
 - Navigating to any page while unauthenticated redirects to `/auth/signin`
 - Sign-in page shows a "Sign in with Google" button styled to match the premium aesthetic
-- Only the email matching `AUTHORIZED_EMAIL` env var is allowed to sign in
+- Only emails listed in the `AUTHORIZED_EMAILS` env var (up to 5, comma-separated) are allowed to sign in
 - Any other email sees an error: "This app is private. Access denied."
 - After successful sign-in, user is redirected to the home page
 - A `User` record is created in the database on first sign-in (upsert)
 - `UserSettings` record is created with defaults on first sign-in
+- Each authorized user gets their own isolated data space — no cross-user visibility
 
 **Design:**
 - Page background: `bg-[--color-background]`
