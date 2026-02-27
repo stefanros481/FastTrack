@@ -4,7 +4,10 @@
       "Bash(bunx shadcn@latest init -d)",
       "Bash(bunx shadcn@latest add calendar popover button -y)",
       "Bash(git fetch --all --prune)",
-      "Bash(bunx prisma generate)"
+      "Bash(bunx prisma generate)",
+      "Bash(git pull --rebase origin main)",
+      "Bash(git stash)",
+      "Bash(git stash pop)"
     ]
   }
 }
