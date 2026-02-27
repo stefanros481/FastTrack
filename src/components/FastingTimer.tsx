@@ -34,6 +34,12 @@ import Toast from "@/components/Toast";
 import { useChartData } from "@/hooks/useChartData";
 import { useGoalNotification } from "@/hooks/useGoalNotification";
 
+function useHydrated() {
+  const [hydrated, setHydrated] = useState(false);
+  useEffect(() => setHydrated(true), []);
+  return hydrated;
+}
+
 // --- Constants ---
 const MILESTONES = [
   { hours: 8, label: "Blood Sugar Drops", Icon: Droplets },
@@ -145,6 +151,7 @@ export default function FastingTimer({ activeFast, stats, defaultGoalMinutes }: 
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [isPending, startTransition] = useTransition();
   const [confirmingEnd, setConfirmingEnd] = useState(false);
+  const hydrated = useHydrated();
 
   const isFasting = !!currentFast;
   const startTimeMs = currentFast ? new Date(currentFast.startedAt).getTime() : null;
@@ -259,8 +266,8 @@ export default function FastingTimer({ activeFast, stats, defaultGoalMinutes }: 
                       : formatRemaining(currentFast.goalMinutes * 60 - elapsedSeconds)
                   }
                 />
-                {startTimeMs && (
-                  <div className="flex items-center gap-2 text-xs text-slate-500 bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-full mt-4" suppressHydrationWarning>
+                {startTimeMs && hydrated && (
+                  <div className="flex items-center gap-2 text-xs text-slate-500 bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-full mt-4">
                     <Moon size={12} />
                     Started {formatDateLabel(currentFast.startedAt)} @{" "}
                     {formatTimeLabel(currentFast.startedAt)}
@@ -285,8 +292,8 @@ export default function FastingTimer({ activeFast, stats, defaultGoalMinutes }: 
                 <div className="text-6xl font-mono font-bold tracking-tighter mb-4 relative z-10" suppressHydrationWarning>
                   {formatTime(elapsedSeconds)}
                 </div>
-                {isFasting && startTimeMs && (
-                  <div className="flex items-center gap-2 text-xs text-slate-500 bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-full relative z-10" suppressHydrationWarning>
+                {isFasting && startTimeMs && hydrated && (
+                  <div className="flex items-center gap-2 text-xs text-slate-500 bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-full relative z-10">
                     <Moon size={12} />
                     Started {formatDateLabel(currentFast!.startedAt)} @{" "}
                     {formatTimeLabel(currentFast!.startedAt)}

@@ -1,3 +1,6 @@
+"use client";
+
+import { useState, useEffect } from "react";
 import { ChevronRight } from "lucide-react";
 
 const FASTING_PROTOCOLS = [
@@ -36,7 +39,14 @@ function formatTimeLabel(dateStr: string) {
   });
 }
 
+function useHydrated() {
+  const [hydrated, setHydrated] = useState(false);
+  useEffect(() => setHydrated(true), []);
+  return hydrated;
+}
+
 export default function SessionCard({ session, onSelect }: Props) {
+  const hydrated = useHydrated();
   const durationHours =
     (new Date(session.endedAt).getTime() -
       new Date(session.startedAt).getTime()) /
@@ -69,17 +79,19 @@ export default function SessionCard({ session, onSelect }: Props) {
             {protocolName}
           </span>
         </div>
-        <div className="text-[11px] text-slate-500 mt-1 flex flex-wrap gap-x-2" suppressHydrationWarning>
-          <span suppressHydrationWarning>
-            {formatDateLabel(session.startedAt)}{" "}
-            {formatTimeLabel(session.startedAt)}
-          </span>
-          <span>&rarr;</span>
-          <span suppressHydrationWarning>
-            {formatDateLabel(session.endedAt)}{" "}
-            {formatTimeLabel(session.endedAt)}
-          </span>
-        </div>
+        {hydrated && (
+          <div className="text-[11px] text-slate-500 mt-1 flex flex-wrap gap-x-2">
+            <span>
+              {formatDateLabel(session.startedAt)}{" "}
+              {formatTimeLabel(session.startedAt)}
+            </span>
+            <span>&rarr;</span>
+            <span>
+              {formatDateLabel(session.endedAt)}{" "}
+              {formatTimeLabel(session.endedAt)}
+            </span>
+          </div>
+        )}
         {session.notes && (
           <p className="text-sm text-[--color-text-muted] truncate mt-1">
             {session.notes}
