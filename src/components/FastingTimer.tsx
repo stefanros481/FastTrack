@@ -19,9 +19,11 @@ import {
   Settings,
 } from "lucide-react";
 import Link from "next/link";
-import { startFast, stopFast } from "@/app/actions/fasting";
+import { startFast, stopFast, updateActiveStartTime } from "@/app/actions/fasting";
 import type { FastingStats } from "@/app/actions/fasting";
 import { updateTheme } from "@/app/actions/settings";
+import { activeStartTimeSchema } from "@/lib/validators";
+import { WheelDateTimePicker } from "@/components/ui/wheel-date-time-picker";
 import { useTheme } from "@/components/ThemeProvider";
 import HistoryList from "@/components/HistoryList";
 import NoteInput from "@/components/NoteInput";
@@ -153,6 +155,7 @@ export default function FastingTimer({ activeFast, stats, defaultGoalMinutes }: 
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [isPending, startTransition] = useTransition();
   const [confirmingEnd, setConfirmingEnd] = useState(false);
+  const [showStartTimePicker, setShowStartTimePicker] = useState(false);
   const hydrated = useHydrated();
 
   const isFasting = !!currentFast;
@@ -210,6 +213,22 @@ export default function FastingTimer({ activeFast, stats, defaultGoalMinutes }: 
   };
 
   const handleCancelEnd = () => setConfirmingEnd(false);
+
+  const handleUpdateStartTime = (newDate: Date) => {
+    if (!currentFast) return;
+    const parsed = activeStartTimeSchema.safeParse({
+      sessionId: currentFast.id,
+      startedAt: newDate,
+    });
+    if (!parsed.success) return;
+    setShowStartTimePicker(false);
+    startTransition(async () => {
+      const result = await updateActiveStartTime(currentFast.id, newDate);
+      if (result.success) {
+        setCurrentFast({ ...currentFast, startedAt: newDate.toISOString() });
+      }
+    });
+  };
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans pb-28">
@@ -269,11 +288,15 @@ export default function FastingTimer({ activeFast, stats, defaultGoalMinutes }: 
                   }
                 />
                 {startTimeMs && hydrated && (
-                  <div className="flex items-center gap-2 text-xs text-slate-500 bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-full mt-4">
+                  <button
+                    type="button"
+                    onClick={() => setShowStartTimePicker(true)}
+                    className="flex items-center gap-2 text-xs text-slate-500 bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-full mt-4 min-h-11 transition-all active:scale-95"
+                  >
                     <Moon size={12} />
                     Started {formatDateLabel(currentFast.startedAt)} @{" "}
                     {formatTimeLabel(currentFast.startedAt)}
-                  </div>
+                  </button>
                 )}
               </div>
             ) : (
@@ -295,11 +318,15 @@ export default function FastingTimer({ activeFast, stats, defaultGoalMinutes }: 
                   {formatTime(elapsedSeconds)}
                 </div>
                 {isFasting && startTimeMs && hydrated && (
-                  <div className="flex items-center gap-2 text-xs text-slate-500 bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-full relative z-10">
+                  <button
+                    type="button"
+                    onClick={() => setShowStartTimePicker(true)}
+                    className="flex items-center gap-2 text-xs text-slate-500 bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-full relative z-10 min-h-11 transition-all active:scale-95"
+                  >
                     <Moon size={12} />
                     Started {formatDateLabel(currentFast!.startedAt)} @{" "}
                     {formatTimeLabel(currentFast!.startedAt)}
-                  </div>
+                  </button>
                 )}
               </div>
             )}
@@ -410,6 +437,15 @@ export default function FastingTimer({ activeFast, stats, defaultGoalMinutes }: 
 
       {/* Toast notification */}
       {showToast && <Toast message={toastMessage} onDismiss={dismissToast} />}
+
+      {/* Active session start time picker */}
+      {showStartTimePicker && currentFast && (
+        <WheelDateTimePicker
+          value={new Date(currentFast.startedAt)}
+          onChange={handleUpdateStartTime}
+          maxDate={new Date()}
+        />
+      )}
 
       {/* Bottom Navigation */}
       <nav className="fixed bottom-0 left-0 right-0 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-t border-slate-200 dark:border-slate-800 flex justify-around p-4 pb-8 z-50">

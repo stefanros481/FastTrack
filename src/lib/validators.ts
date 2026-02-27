@@ -51,3 +51,13 @@ export const maxDurationMinutesSchema = z
   .min(60, "Must be at least 60 minutes (1 hour)")
   .max(4320, "Must be at most 4320 minutes (72 hours)")
   .nullable();
+
+export const activeStartTimeSchema = z
+  .object({
+    sessionId: z.string().min(1),
+    startedAt: z.coerce.date(),
+  })
+  .refine((data) => data.startedAt <= new Date(), {
+    message: "Start time cannot be in the future",
+    path: ["startedAt"],
+  });

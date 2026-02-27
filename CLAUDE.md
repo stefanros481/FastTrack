@@ -47,6 +47,18 @@ Settings page at `/settings` with sections: Profile, Fasting, Notifications, App
 - `src/components/NotificationSettings.tsx` — reminder toggle, time picker, max duration alert
 - `src/components/SignOutButton.tsx` — sign out with redirect to sign-in page
 
+## Spinning Wheel Pickers
+
+All date/time selection uses iOS-style spinning wheel pickers via `@ncdai/react-wheel-picker` (v1.2.0, zero production deps). Presented as bottom sheet overlays with momentum scrolling.
+
+**Key files:**
+- `src/components/ui/wheel-date-time-picker.tsx` — 3-drum picker (date/hour/minute) for session editing and active start time
+- `src/components/ui/wheel-time-picker.tsx` — 2-drum picker (hour/minute) for notification reminder time
+- `src/app/actions/fasting.ts` — `updateActiveStartTime` server action for editing active session start time
+- `src/lib/validators.ts` — `activeStartTimeSchema` Zod validation (startedAt must be in past, no overlap)
+
+**Usage:** Active fast start time is tappable in `FastingTimer.tsx`. Session start/end times editable in `SessionDetailModal.tsx`. Notification time in `NotificationSettings.tsx`.
+
 ## Design System
 
 Design tokens are defined in `src/index.css` `@theme` block and consumed via `var(--token-name)` or Tailwind utilities.
@@ -121,6 +133,8 @@ Reference PRD: `docs/FastTrack_PRD_v2.md`
 - Vercel Postgres (PostgreSQL) via Prisma — existing `User`, `UserSettings`, `FastingSession` models (no schema changes) (009-multi-user-support)
 - TypeScript 5 / Node.js 18+ + Next.js 16 (App Router), React 19, Auth.js v5, Prisma 7, Tailwind CSS v4, Lucide Reac (010-user-settings)
 - Vercel Postgres (PostgreSQL) via Prisma — existing `User` and `UserSettings` models (no schema changes) (010-user-settings)
+- TypeScript 5 / Node.js 18+ / Next.js 16 (App Router), React 19 + `@ncdai/react-wheel-picker` (v1.2.0, zero production deps), Tailwind CSS v4, Lucide React, date-fns 4, Zod 4 (011-spinning-wheel-picker)
+- Vercel Postgres (PostgreSQL) via Prisma 7 — existing `FastingSession` and `UserSettings` models (no schema changes) (011-spinning-wheel-picker)
 
 ## Recent Changes
 - 001-authentication: Added TypeScript 5 / Node.js 18+ + Next.js 14+ (App Router), Auth.js v5 (next-auth@beta), Prisma, Vercel Postgres

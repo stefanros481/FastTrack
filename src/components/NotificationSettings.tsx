@@ -9,6 +9,7 @@ import {
   reminderTimeSchema,
   maxDurationMinutesSchema,
 } from "@/lib/validators";
+import { WheelTimePicker } from "@/components/ui/wheel-time-picker";
 
 interface NotificationSettingsProps {
   reminderEnabled: boolean;
@@ -98,13 +99,9 @@ export default function NotificationSettings({
           >
             Reminder Time
           </label>
-          <input
-            id="reminder-time"
-            type="time"
+          <WheelTimePicker
             value={time}
-            onChange={(e) => handleTimeChange(e.target.value)}
-            disabled={isPending}
-            className="min-h-11 px-3 rounded-xl bg-[--color-background] text-base border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-[--color-primary]"
+            onChange={handleTimeChange}
           />
         </div>
       )}
