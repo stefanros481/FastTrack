@@ -209,6 +209,7 @@ fasttrack/
 │   │   └── settings.ts             # Server actions for settings
 │   ├── components/
 │   │   ├── ActiveFast.tsx          # Timer, progress ring, stop button
+│   │   ├── StartTimeAdjuster.tsx   # Bottom sheet with spinning wheel picker for start time
 │   │   ├── StartFast.tsx           # Start button, goal picker
 │   │   ├── SessionCard.tsx         # History list item
 │   │   ├── SessionDetail.tsx       # Edit modal — times, note, goal
@@ -217,7 +218,13 @@ fasttrack/
 │   │   ├── WeeklyChart.tsx         # Weekly totals chart
 │   │   ├── GoalRateChart.tsx       # Goal hit rate donut
 │   │   ├── BottomNav.tsx           # Mobile bottom navigation
-│   │   └── ThemeProvider.tsx       # Dark/light mode context
+│   │   ├── ThemeProvider.tsx       # Dark/light mode context
+│   │   └── ui/
+│   │       ├── wheel-picker.tsx   # Reusable spinning drum picker primitive
+│   │       ├── date-time-picker.tsx # Calendar + number input picker
+│   │       ├── calendar.tsx       # React Day Picker wrapper
+│   │       ├── popover.tsx        # Radix popover wrapper
+│   │       └── button.tsx         # Button component
 │   ├── lib/
 │   │   ├── auth.ts                 # Auth.js configuration
 │   │   ├── prisma.ts               # Prisma client singleton
@@ -240,6 +247,7 @@ The primary interaction. A user taps once to begin a fast and once to end it. Wh
 
 - **Start fasting:** Server action creates a `FastingSession` with `startedAt = now()`
 - **Live timer:** Client-side `setInterval` computing elapsed time from `startedAt`
+- **Adjust start time:** While a fast is active, user can tap the "Started..." badge to open an iOS-style spinning wheel picker and correct the start time (date + hour + minute). Timer recalculates immediately.
 - **Stop fasting:** Server action sets `endedAt = now()` on the active session
 - **Active session detection:** Query for session where `endedAt IS NULL` and `userId = currentUser`
 
@@ -249,11 +257,19 @@ The primary interaction. A user taps once to begin a fast and once to end it. Wh
 
 Users may realize they forgot to start or stop at the right time. They need to correct `startedAt` and/or `endedAt` after the fact.
 
-- Inline date/time picker for both start and end
-- Validation: `startedAt` must be before `endedAt`
-- Validation: sessions cannot overlap with other sessions (server-side check)
-- Visual confirmation of the change before saving
-- Server action validates and persists the update
+- **During active fast — spinning wheel picker (drum picker):**
+  - Tapping the "Started..." badge opens a bottom sheet with an iOS-style spinning wheel
+  - Three wheel columns: Day (last 7 days), Hour (00–23), Minute (00–59)
+  - Items snap into place on scroll; selected value highlighted with an indicator band
+  - Preview line shows the selected date/time before confirming
+  - Validation: start time cannot be in the future; cannot overlap with completed sessions
+  - Timer recalculates immediately on confirm
+- **After session ends — popover date/time picker:**
+  - Inline date/time picker for both start and end (calendar + number inputs)
+  - Validation: `startedAt` must be before `endedAt`
+  - Validation: sessions cannot overlap with other sessions (server-side check)
+  - Visual confirmation of the change before saving
+  - Server action validates and persists the update
 
 ### 6.3 Optional Notes
 
@@ -369,6 +385,7 @@ FastTrack App
 │   ├── Timer display
 │   ├── Goal progress ring
 │   ├── Start / Stop button
+│   ├── "Started..." badge → Start time adjuster (spinning wheel bottom sheet)
 │   └── Quick note input
 ├── /dashboard          (protected — Dashboard)
 │   ├── Stats summary cards
@@ -445,13 +462,30 @@ FastTrack App
   - A brief summary of the completed session is shown (duration, goal met/missed)
   - The UI transitions back to the "ready to fast" state
 
-**US-2.4 — Resume app with active fast**  
+**US-2.4 — Resume app with active fast**
 *As a user, I want my active fast to survive closing and reopening the browser so that I don't lose my progress.*
 
 - **Acceptance criteria:**
   - On app load, the server checks for a session where `endedAt IS NULL`
   - If found, the home page renders the active timer computed from `startedAt`
   - Timer shows the correct elapsed time (not reset to 0)
+
+**US-2.5 — Adjust start time during active fast**
+*As a user, I want to adjust the start time of my active fast using a spinning wheel so that I can correct it if I forgot to tap "Start" on time.*
+
+- **Acceptance criteria:**
+  - The "Started..." badge on the active fast screen is tappable
+  - Tapping opens a bottom sheet with an iOS-style spinning wheel (drum picker)
+  - Three wheel columns: Day (last 7 days including "Today", "Yesterday"), Hour (00–23), Minute (00–59)
+  - Wheels default to the current start time values
+  - Items snap to position on scroll; selected item highlighted with a visual indicator band
+  - Fade overlays at the top and bottom of each wheel for depth effect
+  - A preview line below the wheels shows the full selected date/time (e.g., "Thursday, Feb 27 · 10:30")
+  - If the selected time is in the future, an inline error is shown and confirm is disabled
+  - Confirm button calls a server action that validates and updates `startedAt`
+  - Server validates: session belongs to user, session is active, no overlap with completed sessions, not in future
+  - On success, the timer recalculates immediately from the new `startedAt` — no page reload needed
+  - Close via X button or tapping the backdrop
 
 ### Epic 3: Session Editing
 
@@ -705,7 +739,7 @@ git push origin main  # Vercel auto-deploys
 
 1. **`/auth/signin`** — "Sign in with Google" button, premium branding, error messaging for unauthorized emails
 2. **`/` (Home — Idle)** — Large "Start Fast" button (center), last fast summary, goal picker, bottom nav
-3. **`/` (Home — Active)** — Live timer (dominant), progress ring, goal info, note input, "End Fast" button
+3. **`/` (Home — Active)** — Live timer (dominant), progress ring, goal info, note input, tappable "Started..." badge → spinning wheel start time adjuster, "End Fast" button
 4. **`/dashboard`** — Stat cards at top, chart tabs below, scrollable history list at bottom
 5. **Session Detail Modal** — Full session info, editable start/end pickers, note editor, goal editor, delete button
 6. **`/settings`** — Default goal, reminder config, max duration, theme toggle, sign out button
