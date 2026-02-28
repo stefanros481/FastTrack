@@ -91,7 +91,7 @@ The following stack is fixed for v1.0. Substitutions require a constitution amen
 | Icons | Lucide React | Do not mix icon libraries |
 | Notifications | Browser Notification API | With in-app toast fallback |
 
-**Package manager**: `npm` (Next.js ecosystem default for this project).
+**Package manager**: `bun` (project uses bun for all package management; use `bunx` for CLI tools such as `shadcn`, `prisma`, `tsx`).
 
 ## Development Workflow
 

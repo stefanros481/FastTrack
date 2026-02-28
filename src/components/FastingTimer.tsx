@@ -23,7 +23,8 @@ import { startFast, stopFast, updateActiveStartTime } from "@/app/actions/fastin
 import type { FastingStats } from "@/app/actions/fasting";
 import { updateTheme } from "@/app/actions/settings";
 import { activeStartTimeSchema } from "@/lib/validators";
-import { WheelDateTimePicker } from "@/components/ui/wheel-date-time-picker";
+import { DateTimePicker } from "@/components/ui/date-time-picker";
+import { Button } from "@/components/ui/button";
 import { useTheme } from "@/components/ThemeProvider";
 import HistoryList from "@/components/HistoryList";
 import StatsCards from "@/components/StatsCards";
@@ -155,6 +156,9 @@ export default function FastingTimer({ activeFast, stats, defaultGoalMinutes }: 
   const [isPending, startTransition] = useTransition();
   const [confirmingEnd, setConfirmingEnd] = useState(false);
   const [showStartTimePicker, setShowStartTimePicker] = useState(false);
+  const [editStartTime, setEditStartTime] = useState<Date>(
+    currentFast ? new Date(currentFast.startedAt) : new Date()
+  );
   const hydrated = useHydrated();
 
   const isFasting = !!currentFast;
@@ -289,7 +293,7 @@ export default function FastingTimer({ activeFast, stats, defaultGoalMinutes }: 
                 {startTimeMs && hydrated && (
                   <button
                     type="button"
-                    onClick={() => setShowStartTimePicker(true)}
+                    onClick={() => { setEditStartTime(new Date(currentFast!.startedAt)); setShowStartTimePicker(true); }}
                     className="flex items-center gap-2 text-xs text-slate-500 bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-full mt-4 min-h-11 transition-all active:scale-95"
                   >
                     <Moon size={12} />
@@ -319,7 +323,7 @@ export default function FastingTimer({ activeFast, stats, defaultGoalMinutes }: 
                 {isFasting && startTimeMs && hydrated && (
                   <button
                     type="button"
-                    onClick={() => setShowStartTimePicker(true)}
+                    onClick={() => { setEditStartTime(new Date(currentFast!.startedAt)); setShowStartTimePicker(true); }}
                     className="flex items-center gap-2 text-xs text-slate-500 bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-full relative z-10 min-h-11 transition-all active:scale-95"
                   >
                     <Moon size={12} />
@@ -431,11 +435,34 @@ export default function FastingTimer({ activeFast, stats, defaultGoalMinutes }: 
 
       {/* Active session start time picker */}
       {showStartTimePicker && currentFast && (
-        <WheelDateTimePicker
-          value={new Date(currentFast.startedAt)}
-          onChange={handleUpdateStartTime}
-          maxDate={new Date()}
-        />
+        <div
+          className="fixed inset-0 z-[60] flex items-end justify-center bg-black/50"
+        >
+          <div
+            className="w-full max-w-md bg-white dark:bg-slate-900 rounded-t-3xl p-6 pb-10 motion-safe:animate-slide-up"
+          >
+            <h2 className="text-lg font-bold mb-4">Adjust Start Time</h2>
+            <DateTimePicker
+              value={editStartTime}
+              onChange={setEditStartTime}
+            />
+            <div className="flex gap-3 mt-4">
+              <Button
+                variant="outline"
+                className="flex-1 min-h-11"
+                onClick={() => setShowStartTimePicker(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                className="flex-1 min-h-11"
+                onClick={() => handleUpdateStartTime(editStartTime)}
+              >
+                Save
+              </Button>
+            </div>
+          </div>
+        </div>
       )}
 
       {/* Bottom Navigation */}

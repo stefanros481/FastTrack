@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { format } from "date-fns";
-import { CalendarIcon, Clock } from "lucide-react";
+import { Calendar as CalendarIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -12,6 +12,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 
 interface DateTimePickerProps {
   value: Date;
@@ -20,108 +21,119 @@ interface DateTimePickerProps {
   id?: string;
 }
 
-function padTwo(n: number): string {
-  return n.toString().padStart(2, "0");
-}
-
-function clamp(val: number, min: number, max: number): number {
-  return Math.max(min, Math.min(max, val));
-}
-
 export function DateTimePicker({
   value,
   onChange,
   error,
   id,
 }: DateTimePickerProps) {
-  const [calendarOpen, setCalendarOpen] = React.useState(false);
-  const [timeOpen, setTimeOpen] = React.useState(false);
+  const [isOpen, setIsOpen] = React.useState(false);
 
-  const hours = value.getHours();
-  const minutes = value.getMinutes();
+  const hourRef = React.useRef<HTMLButtonElement>(null);
+  const minuteRef = React.useRef<HTMLButtonElement>(null);
+
+  const selectedHour = value.getHours();
+  const selectedMinute = Math.floor(value.getMinutes() / 5) * 5;
 
   const handleDateSelect = (selected: Date | undefined) => {
     if (!selected) return;
     const merged = new Date(selected);
-    merged.setHours(hours, minutes, 0, 0);
+    merged.setHours(value.getHours(), value.getMinutes(), 0, 0);
     onChange(merged);
-    setCalendarOpen(false);
   };
 
-  const setTime = (h: number, m: number) => {
+  const handleTimeChange = (type: "hour" | "minute", val: string) => {
     const updated = new Date(value);
-    updated.setHours(clamp(h, 0, 23), clamp(m, 0, 59), 0, 0);
+    if (type === "hour") {
+      updated.setHours(parseInt(val));
+    } else {
+      updated.setMinutes(parseInt(val));
+    }
     onChange(updated);
   };
 
+  React.useEffect(() => {
+    if (isOpen) {
+      hourRef.current?.scrollIntoView({ block: "center" });
+      minuteRef.current?.scrollIntoView({ block: "center" });
+    }
+  }, [isOpen]);
+
   return (
-    <div className="flex gap-2" id={id}>
-      {/* Date picker */}
-      <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
-        <PopoverTrigger asChild>
-          <Button
-            variant="outline"
-            className={cn(
-              "flex-1 justify-start text-left font-normal min-h-11 rounded-xl",
-              error && "border-red-500"
-            )}
-          >
-            <CalendarIcon className="mr-2 h-4 w-4 shrink-0" />
-            {format(value, "MMM d, yyyy")}
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-auto p-0" align="start">
+    <Popover open={isOpen} onOpenChange={setIsOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          id={id}
+          variant="outline"
+          className={cn(
+            "w-full justify-start text-left font-normal min-h-11",
+            error && "border-red-500"
+          )}
+        >
+          <CalendarIcon className="mr-2 h-4 w-4 shrink-0" />
+          {format(value, "MMM d, yyyy HH:mm")}
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-auto p-0 z-[70]">
+        <div className="sm:flex">
           <Calendar
             mode="single"
             selected={value}
             defaultMonth={value}
             onSelect={handleDateSelect}
           />
-        </PopoverContent>
-      </Popover>
-
-      {/* Time picker — always 24h */}
-      <Popover open={timeOpen} onOpenChange={setTimeOpen}>
-        <PopoverTrigger asChild>
-          <Button
-            variant="outline"
-            className={cn(
-              "w-28 shrink-0 justify-start text-left font-normal min-h-11 rounded-xl tabular-nums",
-              error && "border-red-500"
-            )}
-          >
-            <Clock className="mr-2 h-4 w-4 shrink-0" />
-            {padTwo(hours)}:{padTwo(minutes)}
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-auto p-3" align="start">
-          <div className="flex items-center gap-2">
-            <div className="flex flex-col items-center">
-              <label className="text-xs text-muted-foreground mb-1">Hour</label>
-              <input
-                type="number"
-                min={0}
-                max={23}
-                value={padTwo(hours)}
-                onChange={(e) => setTime(parseInt(e.target.value) || 0, minutes)}
-                className="w-14 h-10 text-center text-lg font-mono rounded-lg border border-input bg-background text-foreground tabular-nums"
-              />
-            </div>
-            <span className="text-xl font-bold mt-5">:</span>
-            <div className="flex flex-col items-center">
-              <label className="text-xs text-muted-foreground mb-1">Min</label>
-              <input
-                type="number"
-                min={0}
-                max={59}
-                value={padTwo(minutes)}
-                onChange={(e) => setTime(hours, parseInt(e.target.value) || 0)}
-                className="w-14 h-10 text-center text-lg font-mono rounded-lg border border-input bg-background text-foreground tabular-nums"
-              />
-            </div>
+          <div className="flex flex-col sm:flex-row sm:h-[300px] divide-y sm:divide-y-0 sm:divide-x">
+            {/* Hours column */}
+            <ScrollArea className="w-64 sm:w-auto">
+              <div className="flex sm:flex-col p-2">
+                {Array.from({ length: 24 }, (_, i) => i)
+                  .reverse()
+                  .map((hour) => {
+                    const isSelected = selectedHour === hour;
+                    return (
+                      <Button
+                        key={hour}
+                        ref={isSelected ? hourRef : undefined}
+                        size="icon"
+                        variant={isSelected ? "default" : "ghost"}
+                        className="sm:w-full shrink-0 aspect-square min-h-11 min-w-11"
+                        onClick={() =>
+                          handleTimeChange("hour", hour.toString())
+                        }
+                      >
+                        {hour}
+                      </Button>
+                    );
+                  })}
+              </div>
+              <ScrollBar orientation="horizontal" className="sm:hidden" />
+            </ScrollArea>
+            {/* Minutes column */}
+            <ScrollArea className="w-64 sm:w-auto">
+              <div className="flex sm:flex-col p-2">
+                {Array.from({ length: 12 }, (_, i) => i * 5).map((minute) => {
+                  const isSelected = selectedMinute === minute;
+                  return (
+                    <Button
+                      key={minute}
+                      ref={isSelected ? minuteRef : undefined}
+                      size="icon"
+                      variant={isSelected ? "default" : "ghost"}
+                      className="sm:w-full shrink-0 aspect-square min-h-11 min-w-11"
+                      onClick={() =>
+                        handleTimeChange("minute", minute.toString())
+                      }
+                    >
+                      {minute.toString().padStart(2, "0")}
+                    </Button>
+                  );
+                })}
+              </div>
+              <ScrollBar orientation="horizontal" className="sm:hidden" />
+            </ScrollArea>
           </div>
-        </PopoverContent>
-      </Popover>
-    </div>
+        </div>
+      </PopoverContent>
+    </Popover>
   );
 }
