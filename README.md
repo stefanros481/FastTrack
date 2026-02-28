@@ -32,15 +32,13 @@ Built with Next.js 16 (App Router), deployed on Vercel.
 
 <p align="center"><sub>Session log &nbsp;·&nbsp; Session edit modal &nbsp;·&nbsp; ShadCN calendar + scroll picker</sub></p>
 
-### Insights & Settings
+### Insights
 
 <div align="center">
   <img src="screenshots/07-insights.png" width="190" alt="Insights — stats, charts, streaks" />
-  &nbsp;
-  <img src="screenshots/08-settings.png" width="190" alt="Settings" />
 </div>
 
-<p align="center"><sub>Insights with stats, duration chart, and goal rate &nbsp;·&nbsp; Settings</sub></p>
+<p align="center"><sub>Insights with stats, duration chart, and goal rate</sub></p>
 
 ---
 
