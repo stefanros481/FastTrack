@@ -221,13 +221,17 @@ export default function FastingTimer({ activeFast, stats, defaultGoalMinutes }: 
 
   const handleStartFast = () => {
     startTransition(async () => {
-      const session = await startFast(goalMinutes ?? undefined);
-      setCurrentFast({
-        id: session.id,
-        startedAt: session.startedAt.toISOString(),
-        goalMinutes: session.goalMinutes,
-        notes: null,
-      });
+      try {
+        const session = await startFast(goalMinutes ?? undefined);
+        setCurrentFast({
+          id: session.id,
+          startedAt: session.startedAt.toISOString(),
+          goalMinutes: session.goalMinutes,
+          notes: null,
+        });
+      } catch (err) {
+        setEndError(err instanceof Error ? err.message : "Failed to start session. Please try again.");
+      }
     });
   };
 

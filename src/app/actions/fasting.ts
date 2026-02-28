@@ -3,6 +3,7 @@
 
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { Prisma } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import {
   sessionEditSchema,
@@ -46,13 +47,22 @@ export async function startFast(goalMinutes?: number) {
 export async function stopFast(sessionId: string) {
   const userId = await getUserId();
 
-  const session = await prisma.fastingSession.update({
-    where: { id: sessionId, userId },
-    data: { endedAt: new Date() },
-  });
-
-  revalidatePath("/");
-  return session;
+  try {
+    const session = await prisma.fastingSession.update({
+      where: { id: sessionId, userId },
+      data: { endedAt: new Date() },
+    });
+    revalidatePath("/");
+    return session;
+  } catch (err) {
+    // P2025: record not found — session was already ended or doesn't exist.
+    // Treat as success so the client can clear its active-session state.
+    if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2025") {
+      revalidatePath("/");
+      return null;
+    }
+    throw new Error("Failed to end session");
+  }
 }
 
 export async function getActiveFast() {
