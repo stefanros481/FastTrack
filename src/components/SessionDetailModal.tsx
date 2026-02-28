@@ -4,7 +4,7 @@ import { useState, useEffect, useTransition } from "react";
 import { X, Trash2 } from "lucide-react";
 import { updateSession, deleteSession } from "@/app/actions/fasting";
 import { sessionEditSchema } from "@/lib/validators";
-import { WheelDateTimePicker } from "@/components/ui/wheel-date-time-picker";
+import { DateTimePicker } from "@/components/ui/date-time-picker";
 import NoteInput from "@/components/NoteInput";
 import DeleteConfirmation from "@/components/DeleteConfirmation";
 
@@ -101,7 +101,7 @@ export default function SessionDetailModal({ session, onClose }: Props) {
       onClick={() => onClose()}
     >
       <div
-        className="w-full max-w-md bg-white dark:bg-slate-900 rounded-t-3xl p-6 pb-10 motion-safe:animate-slide-up"
+        className="w-full max-w-md bg-white dark:bg-slate-900 rounded-t-3xl p-6 pb-10 motion-safe:animate-slide-up overflow-y-auto max-h-[90vh]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -132,7 +132,7 @@ export default function SessionDetailModal({ session, onClose }: Props) {
           <label className="block text-sm font-medium text-[--color-text-muted] mb-1">
             Start Time
           </label>
-          <WheelDateTimePicker
+          <DateTimePicker
             value={startDate}
             onChange={setStartDate}
             error={!!errors.startedAt}
@@ -147,7 +147,7 @@ export default function SessionDetailModal({ session, onClose }: Props) {
           <label className="block text-sm font-medium text-[--color-text-muted] mb-1">
             End Time
           </label>
-          <WheelDateTimePicker
+          <DateTimePicker
             value={endDate}
             onChange={setEndDate}
             error={!!errors.endedAt}

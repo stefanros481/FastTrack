@@ -26,7 +26,6 @@ import { activeStartTimeSchema } from "@/lib/validators";
 import { WheelDateTimePicker } from "@/components/ui/wheel-date-time-picker";
 import { useTheme } from "@/components/ThemeProvider";
 import HistoryList from "@/components/HistoryList";
-import NoteInput from "@/components/NoteInput";
 import StatsCards from "@/components/StatsCards";
 import GoalSelector from "@/components/GoalSelector";
 import ProgressRing from "@/components/ProgressRing";
@@ -329,14 +328,6 @@ export default function FastingTimer({ activeFast, stats, defaultGoalMinutes }: 
                   </button>
                 )}
               </div>
-            )}
-
-            {/* Note input (active fast only) */}
-            {isFasting && currentFast && (
-              <NoteInput
-                sessionId={currentFast.id}
-                initialNote={currentFast.notes ?? null}
-              />
             )}
 
             {/* Start / Stop button */}

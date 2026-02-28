@@ -25,7 +25,7 @@ export default function DeleteConfirmation({
         <button
           onClick={onConfirm}
           disabled={isDeleting}
-          className={`flex-1 py-3 rounded-full font-bold text-white min-h-11 transition-all active:scale-95 bg-[--color-error] ${
+          className={`flex-1 py-3 rounded-full font-bold text-white min-h-11 transition-all active:scale-95 bg-(--color-error) ${
             isDeleting ? "opacity-60" : ""
           }`}
         >
