@@ -1,12 +1,11 @@
 "use client";
 
-import { useState, useEffect, useTransition } from "react";
+import { useState, useEffect, useTransition, useCallback } from "react";
 import {
   Timer,
   Flame,
   History,
   Play,
-  Square,
   CheckCircle2,
   Info,
   Zap,
@@ -37,6 +36,7 @@ import ChartSkeleton from "@/components/ChartSkeleton";
 import Toast from "@/components/Toast";
 import { useChartData } from "@/hooks/useChartData";
 import { useGoalNotification } from "@/hooks/useGoalNotification";
+import { useLongPress } from "@/hooks/useLongPress";
 
 function useHydrated() {
   const [hydrated, setHydrated] = useState(false);
@@ -154,11 +154,11 @@ export default function FastingTimer({ activeFast, stats, defaultGoalMinutes }: 
   const [currentFast, setCurrentFast] = useState(activeFast);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [isPending, startTransition] = useTransition();
-  const [confirmingEnd, setConfirmingEnd] = useState(false);
   const [showStartTimePicker, setShowStartTimePicker] = useState(false);
   const [editStartTime, setEditStartTime] = useState<Date>(
     currentFast ? new Date(currentFast.startedAt) : new Date()
   );
+  const [endError, setEndError] = useState<string | null>(null);
   const hydrated = useHydrated();
 
   const isFasting = !!currentFast;
@@ -169,6 +169,36 @@ export default function FastingTimer({ activeFast, stats, defaultGoalMinutes }: 
     elapsedMs: elapsedSeconds * 1000,
     isActive: isFasting,
   });
+
+  const handleLongPressComplete = useCallback(() => {
+    if (!currentFast) return;
+    startTransition(async () => {
+      try {
+        await stopFast(currentFast.id);
+        setCurrentFast(null);
+      } catch {
+        setEndError("Failed to end session. Please try again.");
+        longPressState.reset();
+      }
+    });
+  }, [currentFast]);
+
+  const longPressState = useLongPress({
+    duration: 5000,
+    onComplete: handleLongPressComplete,
+  });
+
+  const handleEndSessionAccessible = useCallback(() => {
+    if (!currentFast) return;
+    startTransition(async () => {
+      try {
+        await stopFast(currentFast.id);
+        setCurrentFast(null);
+      } catch {
+        setEndError("Failed to end session. Please try again.");
+      }
+    });
+  }, [currentFast]);
 
   // Timer tick
   useEffect(() => {
@@ -188,7 +218,6 @@ export default function FastingTimer({ activeFast, stats, defaultGoalMinutes }: 
   }, [isFasting, startTimeMs]);
 
   const targetSeconds = goalMinutes ? goalMinutes * 60 : 16 * 3600;
-  const progressPercent = Math.min((elapsedSeconds / targetSeconds) * 100, 100);
 
   const handleStartFast = () => {
     startTransition(async () => {
@@ -201,21 +230,6 @@ export default function FastingTimer({ activeFast, stats, defaultGoalMinutes }: 
       });
     });
   };
-
-  const handleEndFast = () => {
-    if (!currentFast) return;
-    if (!confirmingEnd) {
-      setConfirmingEnd(true);
-      return;
-    }
-    setConfirmingEnd(false);
-    startTransition(async () => {
-      await stopFast(currentFast.id);
-      setCurrentFast(null);
-    });
-  };
-
-  const handleCancelEnd = () => setConfirmingEnd(false);
 
   const handleUpdateStartTime = (newDate: Date) => {
     if (!currentFast) return;
@@ -232,6 +246,9 @@ export default function FastingTimer({ activeFast, stats, defaultGoalMinutes }: 
       }
     });
   };
+
+  // Dismiss error toast
+  const dismissError = useCallback(() => setEndError(null), []);
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans pb-28">
@@ -276,55 +293,37 @@ export default function FastingTimer({ activeFast, stats, defaultGoalMinutes }: 
               />
             )}
 
-            {/* Timer display */}
-            {isFasting && currentFast?.goalMinutes ? (
+            {/* Timer display — always ProgressRing for active sessions */}
+            {isFasting ? (
               <div className="flex flex-col items-center py-6">
                 <ProgressRing
-                  progress={Math.min(elapsedSeconds / (currentFast.goalMinutes * 60), 1)}
-                  goalReached={elapsedSeconds >= currentFast.goalMinutes * 60}
+                  progress={Math.min(elapsedSeconds / targetSeconds, 1)}
+                  goalReached={
+                    currentFast?.goalMinutes
+                      ? elapsedSeconds >= currentFast.goalMinutes * 60
+                      : false
+                  }
                   elapsedFormatted={formatTime(elapsedSeconds)}
-                  percentText={`${Math.min(Math.round((elapsedSeconds / (currentFast.goalMinutes * 60)) * 100), 100)}%`}
+                  percentText={`${Math.min(Math.round((elapsedSeconds / targetSeconds) * 100), 100)}%`}
                   remainingText={
+                    currentFast?.goalMinutes &&
                     elapsedSeconds >= currentFast.goalMinutes * 60
                       ? "Goal reached!"
-                      : formatRemaining(currentFast.goalMinutes * 60 - elapsedSeconds)
+                      : formatRemaining(targetSeconds - elapsedSeconds)
                   }
+                  longPressProgress={longPressState.progress}
+                  isPressed={longPressState.isPressed}
+                  longPressHandlers={longPressState.handlers}
+                  onEndSession={handleEndSessionAccessible}
                 />
                 {startTimeMs && hydrated && (
                   <button
                     type="button"
-                    onClick={() => { setEditStartTime(new Date(currentFast!.startedAt)); setShowStartTimePicker(true); }}
+                    onClick={() => {
+                      setEditStartTime(new Date(currentFast!.startedAt));
+                      setShowStartTimePicker(true);
+                    }}
                     className="flex items-center gap-2 text-xs text-slate-500 bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-full mt-4 min-h-11 transition-all active:scale-95"
-                  >
-                    <Moon size={12} />
-                    Started {formatDateLabel(currentFast.startedAt)} @{" "}
-                    {formatTimeLabel(currentFast.startedAt)}
-                  </button>
-                )}
-              </div>
-            ) : (
-              <div className="relative flex flex-col items-center justify-center py-10 bg-white dark:bg-slate-900 rounded-[3rem] shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden">
-                {isFasting && (
-                  <div className="absolute inset-0 opacity-10 flex items-center justify-center pointer-events-none">
-                    <div
-                      className="w-full h-full bg-indigo-600 origin-bottom transition-transform duration-1000 ease-linear"
-                      style={{
-                        transform: `translateY(${100 - progressPercent}%)`,
-                      }}
-                    />
-                  </div>
-                )}
-                <span className="text-slate-400 text-sm uppercase font-bold tracking-widest mb-2 relative z-10">
-                  {isFasting ? "Fasting Time" : "Session Ready"}
-                </span>
-                <div className="text-6xl font-mono font-bold tracking-tighter mb-4 relative z-10" suppressHydrationWarning>
-                  {formatTime(elapsedSeconds)}
-                </div>
-                {isFasting && startTimeMs && hydrated && (
-                  <button
-                    type="button"
-                    onClick={() => { setEditStartTime(new Date(currentFast!.startedAt)); setShowStartTimePicker(true); }}
-                    className="flex items-center gap-2 text-xs text-slate-500 bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-full relative z-10 min-h-11 transition-all active:scale-95"
                   >
                     <Moon size={12} />
                     Started {formatDateLabel(currentFast!.startedAt)} @{" "}
@@ -332,45 +331,15 @@ export default function FastingTimer({ activeFast, stats, defaultGoalMinutes }: 
                   </button>
                 )}
               </div>
-            )}
-
-            {/* Start / Stop button */}
-            {isFasting && confirmingEnd ? (
-              <div className="flex gap-3">
-                <button
-                  onClick={handleCancelEnd}
-                  className="flex-1 py-6 rounded-3xl font-bold text-xl transition-all active:scale-95 flex items-center justify-center gap-2 min-h-11 bg-slate-200 dark:bg-slate-800 text-slate-900 dark:text-slate-100"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleEndFast}
-                  disabled={isPending}
-                  className={`flex-1 py-6 rounded-3xl font-bold text-xl shadow-xl transition-all active:scale-95 flex items-center justify-center gap-2 min-h-11 bg-red-600 text-white hover:bg-red-700 ${isPending ? "opacity-60" : ""}`}
-                >
-                  <Square fill="currentColor" size={20} /> Confirm End
-                </button>
-              </div>
             ) : (
+              /* Start Fast button (idle state) */
               <button
-                onClick={isFasting ? handleEndFast : handleStartFast}
+                onClick={handleStartFast}
                 disabled={isPending}
-                className={`w-full py-6 rounded-3xl font-bold text-xl shadow-xl transition-all active:scale-95 flex items-center justify-center gap-3 min-h-11 ${
-                  isFasting
-                    ? "bg-slate-200 dark:bg-slate-800 text-slate-900 dark:text-slate-100"
-                    : "bg-indigo-600 text-white hover:bg-indigo-700"
-                } ${isPending ? "opacity-60" : ""}`}
+                className={`w-full py-6 rounded-3xl font-bold text-xl shadow-xl transition-all active:scale-95 flex items-center justify-center gap-3 min-h-11 bg-indigo-600 text-white hover:bg-indigo-700 ${isPending ? "opacity-60" : ""}`}
               >
-                {isFasting ? (
-                  <>
-                    <Square fill="currentColor" size={24} /> End Fast
-                  </>
-                ) : (
-                  <>
-                    <Play fill="currentColor" size={24} /> Start{" "}
-                    {goalMinutes ? `${goalMinutes / 60}h` : ""} Fast
-                  </>
-                )}
+                <Play fill="currentColor" size={24} /> Start{" "}
+                {goalMinutes ? `${goalMinutes / 60}h` : ""} Fast
               </button>
             )}
 
@@ -432,6 +401,7 @@ export default function FastingTimer({ activeFast, stats, defaultGoalMinutes }: 
 
       {/* Toast notification */}
       {showToast && <Toast message={toastMessage} onDismiss={dismissToast} />}
+      {endError && <Toast message={endError} onDismiss={dismissError} />}
 
       {/* Active session start time picker */}
       {showStartTimePicker && currentFast && (

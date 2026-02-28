@@ -137,6 +137,7 @@ Reference PRD: `docs/FastTrack_PRD_v2.md`
 - Vercel Postgres (PostgreSQL) via Prisma 7 — existing `FastingSession` and `UserSettings` models (no schema changes) (011-spinning-wheel-picker)
 - TypeScript 5 / Node.js 18+ + Next.js 16 (App Router), React 19, Tailwind CSS v4, ShadCN (Calendar, Popover, Button, ScrollArea), date-fns 4, lucide-reac (001-shadcn-datetime-picker)
 - N/A — no database changes (001-shadcn-datetime-picker)
+- TypeScript 5 / Node.js 18+ + Next.js 16 (App Router), React 19, Tailwind CSS v4, Lucide Reac (012-long-press-end-session)
 
 ## Recent Changes
 - 001-authentication: Added TypeScript 5 / Node.js 18+ + Next.js 14+ (App Router), Auth.js v5 (next-auth@beta), Prisma, Vercel Postgres
