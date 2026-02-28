@@ -8,6 +8,9 @@
       "Bash(git pull --rebase origin main)",
       "Bash(git stash)",
       "Bash(git stash pop)"
+    ],
+    "additionalDirectories": [
+      "/Users/stefan/code/FastTrack/scripts"
     ]
   }
 }
