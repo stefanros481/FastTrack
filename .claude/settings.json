@@ -7,7 +7,13 @@
       "Bash(bunx prisma generate)",
       "Bash(git pull --rebase origin main)",
       "Bash(git stash)",
-      "Bash(git stash pop)"
+      "Bash(git stash pop)",
+      "Bash(lsof -i :3000)",
+      "mcp__playwright__browser_resize",
+      "mcp__playwright__browser_take_screenshot",
+      "mcp__playwright__browser_run_code",
+      "mcp__playwright__browser_press_key",
+      "Bash(npx vercel logs --limit 20)"
     ],
     "additionalDirectories": [
       "/Users/stefan/code/FastTrack/scripts"
