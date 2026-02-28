@@ -74,7 +74,7 @@ export function DateTimePicker({
           {format(value, "MMM d, yyyy HH:mm")}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-auto p-0 z-[70]">
+      <PopoverContent className="w-auto p-0 z-[110]">
         <div className="sm:flex">
           <Calendar
             mode="single"
