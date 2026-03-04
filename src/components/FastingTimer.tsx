@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useTransition, useCallback } from "react";
+import { useState, useEffect, useTransition, useCallback, useRef } from "react";
 import {
   Timer,
   Flame,
@@ -18,10 +18,10 @@ import {
   Settings,
 } from "lucide-react";
 import Link from "next/link";
-import { startFast, stopFast, updateActiveStartTime } from "@/app/actions/fasting";
+import { startFast, stopFast, deleteSession, updateActiveStartTime } from "@/app/actions/fasting";
 import type { FastingStats } from "@/app/actions/fasting";
 import { updateTheme } from "@/app/actions/settings";
-import { activeStartTimeSchema } from "@/lib/validators";
+import { activeStartTimeSchema, MIN_FAST_SECONDS } from "@/lib/validators";
 import { DateTimePicker } from "@/components/ui/date-time-picker";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "@/components/ThemeProvider";
@@ -163,6 +163,7 @@ export default function FastingTimer({ activeFast, stats, defaultGoalMinutes }: 
 
   const isFasting = !!currentFast;
   const startTimeMs = currentFast ? new Date(currentFast.startedAt).getTime() : null;
+  const isBelowMinimum = elapsedSeconds < MIN_FAST_SECONDS;
 
   const { showToast, toastMessage, dismissToast } = useGoalNotification({
     goalMinutes: currentFast?.goalMinutes ?? null,
@@ -170,35 +171,45 @@ export default function FastingTimer({ activeFast, stats, defaultGoalMinutes }: 
     isActive: isFasting,
   });
 
+  const terminateSession = useCallback(async (
+    fastId: string,
+    belowMinimum: boolean,
+    onError: (msg: string) => void,
+  ) => {
+    const result = belowMinimum
+      ? await deleteSession(fastId)
+      : await stopFast(fastId);
+    if (result.success) {
+      setCurrentFast(null);
+    } else {
+      onError(result.error);
+    }
+  }, []);
+
+  const longPressResetRef = useRef<() => void>(() => {});
+
   const handleLongPressComplete = useCallback(() => {
     if (!currentFast) return;
-    startTransition(async () => {
-      try {
-        await stopFast(currentFast.id);
-        setCurrentFast(null);
-      } catch {
-        setEndError("Failed to end session. Please try again.");
-        longPressState.reset();
-      }
-    });
-  }, [currentFast]);
+    startTransition(() =>
+      terminateSession(currentFast.id, isBelowMinimum, (err) => {
+        setEndError(err);
+        longPressResetRef.current();
+      })
+    );
+  }, [currentFast, terminateSession]);
 
   const longPressState = useLongPress({
     duration: 5000,
     onComplete: handleLongPressComplete,
   });
+  useEffect(() => { longPressResetRef.current = longPressState.reset; });
 
   const handleEndSessionAccessible = useCallback(() => {
     if (!currentFast) return;
-    startTransition(async () => {
-      try {
-        await stopFast(currentFast.id);
-        setCurrentFast(null);
-      } catch {
-        setEndError("Failed to end session. Please try again.");
-      }
-    });
-  }, [currentFast]);
+    startTransition(() =>
+      terminateSession(currentFast.id, isBelowMinimum, setEndError)
+    );
+  }, [currentFast, terminateSession]);
 
   // Timer tick
   useEffect(() => {
@@ -317,6 +328,7 @@ export default function FastingTimer({ activeFast, stats, defaultGoalMinutes }: 
                   }
                   longPressProgress={longPressState.progress}
                   isPressed={longPressState.isPressed}
+                  isBelowMinimum={isBelowMinimum}
                   longPressHandlers={longPressState.handlers}
                   onEndSession={handleEndSessionAccessible}
                 />

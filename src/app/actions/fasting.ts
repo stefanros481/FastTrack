@@ -10,6 +10,8 @@ import {
   noteSchema,
   deleteSessionSchema,
   activeStartTimeSchema,
+  MIN_FAST_MS,
+  MIN_FAST_MINUTES,
 } from "@/lib/validators";
 import {
   startOfDay,
@@ -44,22 +46,38 @@ export async function startFast(goalMinutes?: number) {
   return session;
 }
 
-export async function stopFast(sessionId: string) {
+export type StopFastResult =
+  | { success: true; session: Awaited<ReturnType<typeof prisma.fastingSession.update>> | null }
+  | { success: false; error: string };
+
+export async function stopFast(sessionId: string): Promise<StopFastResult> {
   const userId = await getUserId();
+
+  // Fetch session to check duration before ending
+  const existing = await prisma.fastingSession.findFirst({
+    where: { id: sessionId, userId, endedAt: null },
+    select: { startedAt: true },
+  });
+  if (!existing) {
+    // Already ended or doesn't exist — treat as success so client clears state
+    return { success: true, session: null };
+  }
+
+  const now = new Date();
+  if (now.getTime() - existing.startedAt.getTime() < MIN_FAST_MS) {
+    return { success: false, error: `Session must be at least ${MIN_FAST_MINUTES / 60} hours` };
+  }
 
   try {
     const session = await prisma.fastingSession.update({
-      where: { id: sessionId, userId },
-      data: { endedAt: new Date() },
+      where: { id: sessionId, userId, endedAt: null },
+      data: { endedAt: now },
     });
     revalidatePath("/");
-    return session;
+    return { success: true, session };
   } catch (err) {
-    // P2025: record not found — session was already ended or doesn't exist.
-    // Treat as success so the client can clear its active-session state.
     if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2025") {
-      revalidatePath("/");
-      return null;
+      return { success: true, session: null };
     }
     throw new Error("Failed to end session");
   }

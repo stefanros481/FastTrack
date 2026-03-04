@@ -1,5 +1,9 @@
 import { z } from "zod";
 
+export const MIN_FAST_MINUTES = 480; // 8 hours
+export const MIN_FAST_SECONDS = MIN_FAST_MINUTES * 60;
+export const MIN_FAST_MS = MIN_FAST_SECONDS * 1000;
+
 export const sessionEditSchema = z
   .object({
     sessionId: z.string().min(1),
@@ -17,7 +21,14 @@ export const sessionEditSchema = z
   .refine((data) => data.endedAt <= new Date(), {
     message: "End time cannot be in the future",
     path: ["endedAt"],
-  });
+  })
+  .refine(
+    (data) => data.endedAt.getTime() - data.startedAt.getTime() >= MIN_FAST_MS,
+    {
+      message: "Session must be at least 8 hours",
+      path: ["endedAt"],
+    }
+  );
 
 export type SessionEditInput = z.infer<typeof sessionEditSchema>;
 

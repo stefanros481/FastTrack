@@ -10,6 +10,7 @@ interface ProgressRingProps {
   remainingText: string;
   longPressProgress?: number;
   isPressed?: boolean;
+  isBelowMinimum?: boolean;
   longPressHandlers?: {
     onPointerDown: (e: React.PointerEvent) => void;
     onPointerUp: () => void;
@@ -37,6 +38,7 @@ export default function ProgressRing({
   remainingText,
   longPressProgress = 0,
   isPressed = false,
+  isBelowMinimum = false,
   longPressHandlers,
   onEndSession,
 }: ProgressRingProps) {
@@ -130,11 +132,11 @@ export default function ProgressRing({
       <div className="text-sm text-[--color-text-muted] mt-2 text-center">
         {isPressed ? (
           <span className="text-[--color-error] font-semibold">
-            Hold to end...
+            {isBelowMinimum ? "Hold to cancel..." : "Hold to end..."}
           </span>
         ) : holdComplete ? (
           <span className="text-[--color-error] font-semibold">
-            Session ended
+            {isBelowMinimum ? "Session cancelled" : "Session ended"}
           </span>
         ) : goalReached ? (
           <span className="text-[--color-success] font-semibold">
@@ -149,7 +151,7 @@ export default function ProgressRing({
 
       {/* Discoverability hint */}
       <div className="text-xs text-[--color-text-muted] mt-1 motion-safe:animate-fade-in">
-        Hold ring to end
+        {isBelowMinimum ? "Hold ring to cancel" : "Hold ring to end"}
       </div>
 
       {/* Accessible fallback button */}
