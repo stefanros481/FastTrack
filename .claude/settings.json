@@ -21,7 +21,8 @@
       "Bash(source ~/.zshrc)"
     ],
     "additionalDirectories": [
-      "/Users/stefan/code/FastTrack/scripts"
+      "/Users/stefan/code/FastTrack/scripts",
+      "/Users/stefan/code/FastTrack"
     ]
   }
 }
