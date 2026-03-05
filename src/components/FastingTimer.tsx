@@ -37,6 +37,8 @@ import Toast from "@/components/Toast";
 import { useChartData } from "@/hooks/useChartData";
 import { useGoalNotification } from "@/hooks/useGoalNotification";
 import { useLongPress } from "@/hooks/useLongPress";
+import { useConnectionStatus } from "@/hooks/useConnectionStatus";
+import ConnectionStatus from "@/components/ConnectionStatus";
 
 function useHydrated() {
   const [hydrated, setHydrated] = useState(false);
@@ -147,6 +149,7 @@ function DashboardView({ stats }: { stats: FastingStats | null }) {
 }
 
 export default function FastingTimer({ activeFast, stats, defaultGoalMinutes }: Props) {
+  const connectionStatus = useConnectionStatus();
   const [view, setView] = useState<"timer" | "dashboard" | "history">("timer");
   const [goalMinutes, setGoalMinutes] = useState<number | null>(
     activeFast?.goalMinutes ?? null
@@ -292,7 +295,10 @@ export default function FastingTimer({ activeFast, stats, defaultGoalMinutes }: 
             </p>
           </div>
         </div>
-        <ThemeToggle />
+        <div className="flex items-center gap-2">
+          <ConnectionStatus status={connectionStatus} />
+          <ThemeToggle />
+        </div>
       </header>
 
       <main className="px-6 max-w-md mx-auto">
@@ -351,8 +357,8 @@ export default function FastingTimer({ activeFast, stats, defaultGoalMinutes }: 
               /* Start Fast button (idle state) */
               <button
                 onClick={handleStartFast}
-                disabled={isPending}
-                className={`w-full py-6 rounded-3xl font-bold text-xl shadow-xl transition-all active:scale-95 flex items-center justify-center gap-3 min-h-11 bg-indigo-600 text-white hover:bg-indigo-700 ${isPending ? "opacity-60" : ""}`}
+                disabled={isPending || connectionStatus !== "online"}
+                className={`w-full py-6 rounded-3xl font-bold text-xl shadow-xl transition-all active:scale-95 flex items-center justify-center gap-3 min-h-11 bg-indigo-600 text-white hover:bg-indigo-700 ${isPending || connectionStatus !== "online" ? "opacity-60" : ""}`}
               >
                 <Play fill="currentColor" size={24} /> Start{" "}
                 {goalMinutes ? `${goalMinutes / 60}h` : ""} Fast

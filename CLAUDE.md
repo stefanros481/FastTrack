@@ -142,6 +142,7 @@ Reference PRD: `docs/FastTrack_PRD_v2.md`
 - Vercel Postgres (PostgreSQL) via Prisma 7 — existing `FastingSession` model (no schema changes) (013-min-fasting-duration)
 - TypeScript 5 / Node.js 18+ (backup script), GNU Make (orchestration) + Prisma 7 (existing ORM), `bun` (script runner) (014-db-backup)
 - Vercel Postgres (PostgreSQL) — read-only access for backup (014-db-backup)
+- Vercel Postgres (PostgreSQL) via Prisma 7 — read-only `SELECT 1` health check (015-connection-status)
 
 ## Recent Changes
 - 001-authentication: Added TypeScript 5 / Node.js 18+ + Next.js 14+ (App Router), Auth.js v5 (next-auth@beta), Prisma, Vercel Postgres
