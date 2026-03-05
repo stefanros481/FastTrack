@@ -1,23 +1,32 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { History } from "lucide-react";
-import SessionCard from "@/components/SessionCard";
+import MonthGroup from "@/components/MonthGroup";
 import SessionCardSkeleton from "@/components/SessionCardSkeleton";
-
-interface CompletedSession {
-  id: string;
-  startedAt: string;
-  endedAt: string;
-  goalMinutes: number | null;
-  notes: string | null;
-}
+import type { CompletedSession } from "@/types/session";
 
 interface ApiResponse {
   data: CompletedSession[];
   nextCursor: string | null;
   hasMore: boolean;
+}
+
+function groupByMonth(
+  sessions: CompletedSession[]
+): [string, CompletedSession[]][] {
+  const groups = new Map<string, CompletedSession[]>();
+  for (const session of sessions) {
+    const monthKey = session.startedAt.slice(0, 7); // "YYYY-MM"
+    const group = groups.get(monthKey);
+    if (group) {
+      group.push(session);
+    } else {
+      groups.set(monthKey, [session]);
+    }
+  }
+  return Array.from(groups.entries());
 }
 
 export default function HistoryList() {
@@ -30,9 +39,38 @@ export default function HistoryList() {
   const [error, setError] = useState<string | null>(null);
   const [selectedSession, setSelectedSession] =
     useState<CompletedSession | null>(null);
+  const [expandedMonths, setExpandedMonths] = useState<Set<string>>(
+    new Set()
+  );
+  const initialExpandDone = useRef(false);
 
   const sentinelRef = useRef<HTMLDivElement>(null);
   const loadingRef = useRef(false);
+
+  const monthGroups = useMemo(
+    () => groupByMonth(sessions),
+    [sessions]
+  );
+
+  // Auto-expand the most recent month on initial load
+  useEffect(() => {
+    if (!initialExpandDone.current && monthGroups.length > 0) {
+      initialExpandDone.current = true;
+      setExpandedMonths(new Set([monthGroups[0][0]]));
+    }
+  }, [monthGroups]);
+
+  const handleToggleMonth = useCallback((monthKey: string) => {
+    setExpandedMonths((prev) => {
+      const next = new Set(prev);
+      if (next.has(monthKey)) {
+        next.delete(monthKey);
+      } else {
+        next.add(monthKey);
+      }
+      return next;
+    });
+  }, []);
 
   const fetchSessions = useCallback(
     async (pageCursor: string | null, append: boolean) => {
@@ -104,6 +142,8 @@ export default function HistoryList() {
         setIsInitialLoad(true);
         setCursor(null);
         setHasMore(true);
+        initialExpandDone.current = false;
+        setExpandedMonths(new Set());
         fetchSessions(null, false);
       }
       setSelectedSession(null);
@@ -146,15 +186,16 @@ export default function HistoryList() {
 
   return (
     <>
-      <div className="space-y-3">
-        {sessions.map((session, index) => (
-          <div
-            key={session.id}
-            className="motion-safe:animate-slide-up"
-            style={{ animationDelay: `${Math.min(index, 9) * 50}ms` }}
-          >
-            <SessionCard session={session} onSelect={handleSelectSession} />
-          </div>
+      <div className="space-y-6">
+        {monthGroups.map(([monthKey, groupSessions]) => (
+          <MonthGroup
+            key={monthKey}
+            monthKey={monthKey}
+            sessions={groupSessions}
+            isExpanded={expandedMonths.has(monthKey)}
+            onToggle={handleToggleMonth}
+            onSelectSession={handleSelectSession}
+          />
         ))}
 
         {/* Loading more indicator */}

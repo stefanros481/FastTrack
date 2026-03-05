@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { ChevronRight } from "lucide-react";
+import type { CompletedSession } from "@/types/session";
 
 const FASTING_PROTOCOLS = [
   { hours: 16, name: "16:8" },
@@ -9,14 +10,6 @@ const FASTING_PROTOCOLS = [
   { hours: 20, name: "20:4" },
   { hours: 24, name: "24h" },
 ];
-
-interface CompletedSession {
-  id: string;
-  startedAt: string;
-  endedAt: string;
-  goalMinutes: number | null;
-  notes: string | null;
-}
 
 interface Props {
   session: CompletedSession;
