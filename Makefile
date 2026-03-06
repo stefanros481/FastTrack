@@ -11,3 +11,14 @@ backup:
 	@cd $(TMP_DIR) && zip -q ../backup-$(TIMESTAMP).zip *.json || { cd ../.. && rm -rf $(TMP_DIR) && rm -f $(ARCHIVE); echo "Zip failed"; exit 1; }
 	@rm -rf $(TMP_DIR)
 	@echo "Backup saved to $(ARCHIVE)"
+
+.PHONY: test test-watch test-coverage
+
+test:
+	@bun run test
+
+test-watch:
+	@bun run test:watch
+
+test-coverage:
+	@bun run test:coverage
