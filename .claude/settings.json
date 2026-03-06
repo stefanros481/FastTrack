@@ -18,7 +18,10 @@
       "Bash(1:*)",
       "Bash(npx ts-node --skip-project -e \":*)",
       "Bash(npx tsx -e \":*)",
-      "Bash(source ~/.zshrc)"
+      "Bash(source ~/.zshrc)",
+      "Bash(npx tsx -e ':*)",
+      "Bash(npx next build)",
+      "Bash(/dev/null:*)"
     ],
     "additionalDirectories": [
       "/Users/stefan/code/FastTrack/scripts",

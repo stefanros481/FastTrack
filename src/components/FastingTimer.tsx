@@ -199,7 +199,7 @@ export default function FastingTimer({ activeFast, stats, defaultGoalMinutes }: 
         longPressResetRef.current();
       })
     );
-  }, [currentFast, terminateSession]);
+  }, [currentFast, isBelowMinimum, terminateSession]);
 
   const longPressState = useLongPress({
     duration: 5000,
@@ -212,7 +212,7 @@ export default function FastingTimer({ activeFast, stats, defaultGoalMinutes }: 
     startTransition(() =>
       terminateSession(currentFast.id, isBelowMinimum, setEndError)
     );
-  }, [currentFast, terminateSession]);
+  }, [currentFast, isBelowMinimum, terminateSession]);
 
   // Timer tick
   useEffect(() => {
