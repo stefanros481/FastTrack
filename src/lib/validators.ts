@@ -63,6 +63,14 @@ export const maxDurationMinutesSchema = z
   .max(4320, "Must be at most 4320 minutes (72 hours)")
   .nullable();
 
+export const gamificationSettingsSchema = z.object({
+  enabled: z.boolean().optional(),
+  achievements: z.boolean().optional(),
+  whosFasting: z.boolean().optional(),
+  leaderboard: z.boolean().optional(),
+  challenge: z.boolean().optional(),
+});
+
 export const activeStartTimeSchema = z
   .object({
     sessionId: z.string().min(1),

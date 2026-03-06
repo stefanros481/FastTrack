@@ -39,6 +39,7 @@ import { useGoalNotification } from "@/hooks/useGoalNotification";
 import { useLongPress } from "@/hooks/useLongPress";
 import { useConnectionStatus } from "@/hooks/useConnectionStatus";
 import ConnectionStatus from "@/components/ConnectionStatus";
+import GamificationOptIn from "@/components/GamificationOptIn";
 
 function useHydrated() {
   const [hydrated, setHydrated] = useState(false);
@@ -66,6 +67,7 @@ interface Props {
   activeFast: ActiveSession | null;
   stats: FastingStats | null;
   defaultGoalMinutes?: number | null;
+  gamificationEnabled?: boolean | null;
 }
 
 // --- Helpers ---
@@ -148,8 +150,9 @@ function DashboardView({ stats }: { stats: FastingStats | null }) {
   );
 }
 
-export default function FastingTimer({ activeFast, stats, defaultGoalMinutes }: Props) {
+export default function FastingTimer({ activeFast, stats, defaultGoalMinutes, gamificationEnabled }: Props) {
   const connectionStatus = useConnectionStatus();
+  const [showGamificationSplash, setShowGamificationSplash] = useState(gamificationEnabled === null);
   const [view, setView] = useState<"timer" | "dashboard" | "history">("timer");
   const [goalMinutes, setGoalMinutes] = useState<number | null>(
     activeFast?.goalMinutes ?? null
@@ -420,6 +423,11 @@ export default function FastingTimer({ activeFast, stats, defaultGoalMinutes }: 
           </div>
         )}
       </main>
+
+      {/* Gamification opt-in splash */}
+      {showGamificationSplash && (
+        <GamificationOptIn onChoice={() => setShowGamificationSplash(false)} />
+      )}
 
       {/* Toast notification */}
       {showToast && <Toast message={toastMessage} onDismiss={dismissToast} />}

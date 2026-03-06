@@ -7,19 +7,21 @@ import {
   getTheme,
   getDefaultGoal,
   getNotificationSettings,
+  getGamificationSettings,
 } from "@/app/actions/settings";
 import ThemeProvider from "@/components/ThemeProvider";
 import UserProfile from "@/components/UserProfile";
 import DefaultGoalSetting from "@/components/DefaultGoalSetting";
 import NotificationSettings from "@/components/NotificationSettings";
+import GamificationSettings from "@/components/GamificationSettings";
 import SignOutButton from "@/components/SignOutButton";
 
 export default async function SettingsPage() {
   const session = await auth();
   if (!session) redirect("/auth/signin");
 
-  const [profile, theme, defaultGoal, notificationSettings] = await Promise.all(
-    [getUserProfile(), getTheme(), getDefaultGoal(), getNotificationSettings()]
+  const [profile, theme, defaultGoal, notificationSettings, gamificationSettings] = await Promise.all(
+    [getUserProfile(), getTheme(), getDefaultGoal(), getNotificationSettings(), getGamificationSettings()]
   );
 
   return (
@@ -67,6 +69,22 @@ export default async function SettingsPage() {
                 reminderEnabled={notificationSettings.reminderEnabled}
                 reminderTime={notificationSettings.reminderTime}
                 maxDurationMinutes={notificationSettings.maxDurationMinutes}
+              />
+            </div>
+          </section>
+
+          {/* Community Section */}
+          <section>
+            <h2 className="text-xl font-semibold text-[--color-text] mb-3">
+              Community
+            </h2>
+            <div className="bg-[--color-card] rounded-2xl p-4">
+              <GamificationSettings
+                enabled={gamificationSettings.enabled}
+                achievements={gamificationSettings.achievements}
+                whosFasting={gamificationSettings.whosFasting}
+                leaderboard={gamificationSettings.leaderboard}
+                challenge={gamificationSettings.challenge}
               />
             </div>
           </section>

@@ -120,3 +120,56 @@ export async function updateMaxDuration(minutes: number | null) {
     data: { maxDurationMinutes: minutes },
   });
 }
+
+export async function getGamificationSettings(): Promise<{
+  enabled: boolean | null;
+  achievements: boolean;
+  whosFasting: boolean;
+  leaderboard: boolean;
+  challenge: boolean;
+}> {
+  const userId = await getUserId();
+
+  const settings = await prisma.userSettings.findUnique({
+    where: { userId },
+    select: {
+      gamificationEnabled: true,
+      gamificationAchievements: true,
+      gamificationWhosFasting: true,
+      gamificationLeaderboard: true,
+      gamificationChallenge: true,
+    },
+  });
+
+  return {
+    enabled: settings?.gamificationEnabled ?? null,
+    achievements: settings?.gamificationAchievements ?? true,
+    whosFasting: settings?.gamificationWhosFasting ?? true,
+    leaderboard: settings?.gamificationLeaderboard ?? true,
+    challenge: settings?.gamificationChallenge ?? true,
+  };
+}
+
+export async function updateGamificationSettings(settings: {
+  enabled?: boolean;
+  achievements?: boolean;
+  whosFasting?: boolean;
+  leaderboard?: boolean;
+  challenge?: boolean;
+}) {
+  const { gamificationSettingsSchema } = await import("@/lib/validators");
+  const validated = gamificationSettingsSchema.parse(settings);
+  const userId = await getUserId();
+
+  const data: Record<string, boolean> = {};
+  if (validated.enabled !== undefined) data.gamificationEnabled = validated.enabled;
+  if (validated.achievements !== undefined) data.gamificationAchievements = validated.achievements;
+  if (validated.whosFasting !== undefined) data.gamificationWhosFasting = validated.whosFasting;
+  if (validated.leaderboard !== undefined) data.gamificationLeaderboard = validated.leaderboard;
+  if (validated.challenge !== undefined) data.gamificationChallenge = validated.challenge;
+
+  await prisma.userSettings.update({
+    where: { userId },
+    data,
+  });
+}

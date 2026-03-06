@@ -9,6 +9,7 @@ import {
   reminderTimeSchema,
   maxDurationMinutesSchema,
 } from "@/lib/validators";
+import { Switch } from "@/components/ui/switch";
 import { WheelTimePicker } from "@/components/ui/wheel-time-picker";
 
 interface NotificationSettingsProps {
@@ -65,29 +66,19 @@ export default function NotificationSettings({
   return (
     <div className="flex flex-col gap-4">
       {/* Daily Reminder Toggle */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between min-h-11">
         <label
           htmlFor="reminder-toggle"
           className="text-base text-[--color-text]"
         >
           Daily Reminder
         </label>
-        <button
+        <Switch
           id="reminder-toggle"
-          role="switch"
-          aria-checked={enabled}
-          onClick={handleToggle}
+          checked={enabled}
+          onCheckedChange={handleToggle}
           disabled={isPending}
-          className={`relative w-12 h-7 rounded-full transition-colors p-2 box-content ${
-            enabled ? "bg-[--color-primary]" : "bg-slate-300 dark:bg-slate-600"
-          } ${isPending ? "opacity-60" : ""}`}
-        >
-          <span
-            className={`absolute top-0.5 left-0.5 w-6 h-6 rounded-full bg-white shadow transition-transform ${
-              enabled ? "translate-x-5" : "translate-x-0"
-            }`}
-          />
-        </button>
+        />
       </div>
 
       {/* Reminder Time */}

@@ -38,6 +38,12 @@ model UserSettings {
   maxDurationMinutes Int?
   theme              String  @default("dark")
 
+  gamificationEnabled      Boolean?
+  gamificationAchievements Boolean  @default(true)
+  gamificationWhosFasting  Boolean  @default(true)
+  gamificationLeaderboard  Boolean  @default(true)
+  gamificationChallenge    Boolean  @default(true)
+
   userId String @unique
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

@@ -145,6 +145,8 @@ Reference PRD: `docs/FastTrack_PRD_v2.md`
 - Vercel Postgres (PostgreSQL) via Prisma 7 — read-only `SELECT 1` health check (015-connection-status)
 - TypeScript 5 / Node.js 18+ + Next.js 16 (App Router), React 19, Tailwind CSS v4, Lucide React, date-fns 4 (016-history-month-groups)
 - N/A — no database changes; purely client-side grouping of already-fetched session data (016-history-month-groups)
+- TypeScript 5 / Node.js 18+ + Next.js 16 (App Router), React 19, Tailwind CSS v4, Prisma 7, Zod 4, Lucide Reac (018-gamification-settings)
+- Vercel Postgres (PostgreSQL) via Prisma -- 5 new fields on existing `UserSettings` model (018-gamification-settings)
 
 ## Recent Changes
 - 001-authentication: Added TypeScript 5 / Node.js 18+ + Next.js 14+ (App Router), Auth.js v5 (next-auth@beta), Prisma, Vercel Postgres

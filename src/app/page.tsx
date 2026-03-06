@@ -1,7 +1,7 @@
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { getActiveFast, getStats } from "@/app/actions/fasting";
-import { getTheme, getDefaultGoal } from "@/app/actions/settings";
+import { getTheme, getDefaultGoal, getGamificationSettings } from "@/app/actions/settings";
 import FastingTimer from "@/components/FastingTimer";
 import ThemeProvider from "@/components/ThemeProvider";
 
@@ -9,11 +9,12 @@ export default async function HomePage() {
   const session = await auth();
   if (!session) redirect("/auth/signin");
 
-  const [activeFast, stats, theme, defaultGoalMinutes] = await Promise.all([
+  const [activeFast, stats, theme, defaultGoalMinutes, gamificationSettings] = await Promise.all([
     getActiveFast(),
     getStats(),
     getTheme(),
     getDefaultGoal(),
+    getGamificationSettings(),
   ]);
 
   return (
@@ -31,6 +32,7 @@ export default async function HomePage() {
         }
         stats={stats}
         defaultGoalMinutes={defaultGoalMinutes}
+        gamificationEnabled={gamificationSettings.enabled}
       />
     </ThemeProvider>
   );
