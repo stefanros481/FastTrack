@@ -43,6 +43,10 @@ export default function ConnectionStatus({ status }: Props) {
       dotClass: "bg-[var(--color-error)]",
       label: "Offline",
     },
+    unavailable: {
+      dotClass: "bg-[var(--color-error)]",
+      label: "Unavailable",
+    },
   }[status];
 
   return (

@@ -3,6 +3,7 @@
 import { useState, useTransition, useRef } from "react";
 import { updateNote } from "@/app/actions/fasting";
 import { noteSchema } from "@/lib/validators";
+import { useConnection } from "@/contexts/ConnectionContext";
 
 interface Props {
   sessionId: string;
@@ -16,6 +17,7 @@ export default function NoteInput({ sessionId, initialNote, onSaved }: Props) {
   const [showSaved, setShowSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const savedTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const connectionStatus = useConnection();
 
   const charCount = note.length;
   const isWarning = charCount >= 260;
@@ -28,6 +30,12 @@ export default function NoteInput({ sessionId, initialNote, onSaved }: Props) {
 
     // Dirty check — skip save if unchanged
     if (noteValue === initialValue) return;
+
+    // Block save when not online
+    if (connectionStatus !== "online") {
+      setError("Cannot save while offline");
+      return;
+    }
 
     // Client-side Zod validation
     const parsed = noteSchema.safeParse({ sessionId, note: noteValue });

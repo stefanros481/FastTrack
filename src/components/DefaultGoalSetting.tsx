@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { updateDefaultGoal } from "@/app/actions/settings";
+import ConnectionGuard from "@/components/ConnectionGuard";
 
 const GOAL_OPTIONS = [
   { minutes: null, label: "None" },
@@ -75,31 +76,34 @@ export default function DefaultGoalSetting({
           const isSelected =
             !isCustom && selected === option.minutes;
           return (
-            <button
-              key={option.label}
-              onClick={() => handleSelect(option.minutes)}
-              disabled={isPending}
-              className={`min-h-11 min-w-11 px-4 py-2 rounded-full font-semibold text-sm transition-all ${
-                isSelected
-                  ? "bg-[--color-primary] text-[--color-primary-foreground]"
-                  : "bg-[--color-secondary] text-[--color-text]"
-              } ${isPending ? "opacity-60" : ""}`}
-            >
-              {option.label}
-            </button>
+            <ConnectionGuard key={option.label}>
+              <button
+                onClick={() => handleSelect(option.minutes)}
+                disabled={isPending}
+                className={`min-h-11 min-w-11 px-4 py-2 rounded-full font-semibold text-sm transition-all ${
+                  isSelected
+                    ? "bg-[--color-primary] text-[--color-primary-foreground]"
+                    : "bg-[--color-secondary] text-[--color-text]"
+                } ${isPending ? "opacity-60" : ""}`}
+              >
+                {option.label}
+              </button>
+            </ConnectionGuard>
           );
         })}
-        <button
-          onClick={handleCustomClick}
-          disabled={isPending}
-          className={`min-h-11 min-w-11 px-4 py-2 rounded-full font-semibold text-sm transition-all ${
-            isCustom
-              ? "bg-[--color-primary] text-[--color-primary-foreground]"
-              : "bg-[--color-secondary] text-[--color-text]"
-          } ${isPending ? "opacity-60" : ""}`}
-        >
-          Custom
-        </button>
+        <ConnectionGuard>
+          <button
+            onClick={handleCustomClick}
+            disabled={isPending}
+            className={`min-h-11 min-w-11 px-4 py-2 rounded-full font-semibold text-sm transition-all ${
+              isCustom
+                ? "bg-[--color-primary] text-[--color-primary-foreground]"
+                : "bg-[--color-secondary] text-[--color-text]"
+            } ${isPending ? "opacity-60" : ""}`}
+          >
+            Custom
+          </button>
+        </ConnectionGuard>
       </div>
 
       {isCustom && (

@@ -29,11 +29,13 @@
       "Bash(sort -t- -k1 -n)",
       "Bash(bash /Users/stefan/code/FastTrack/.specify/scripts/bash/create-new-feature.sh --json --number 19 --short-name \"achievements\" \"Achievements and badges - personal milestone badges computed from fasting session history\")",
       "Bash(bash /Users/stefan/code/FastTrack/.specify/scripts/bash/check-prerequisites.sh --json --paths-only)",
-      "Bash(bash .specify/scripts/bash/setup-plan.sh --json)"
+      "Bash(bash .specify/scripts/bash/setup-plan.sh --json)",
+      "Bash(sort -t/ -k3 -V)"
     ],
     "additionalDirectories": [
       "/Users/stefan/code/FastTrack/scripts",
-      "/Users/stefan/code/FastTrack"
+      "/Users/stefan/code/FastTrack",
+      "/Users/stefan/code/FastTrack/src"
     ]
   }
 }

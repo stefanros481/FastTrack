@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { Trophy, Users, Medal, Swords } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { updateGamificationSettings } from "@/app/actions/settings";
+import { useConnection } from "@/contexts/ConnectionContext";
 
 interface GamificationSettingsProps {
   enabled: boolean | null;
@@ -35,6 +36,8 @@ export default function GamificationSettings({
     challenge: initialChallenge,
   });
   const [isPending, startTransition] = useTransition();
+  const connectionStatus = useConnection();
+  const isOffline = connectionStatus !== "online";
 
   const handleMasterToggle = () => {
     const newEnabled = !enabled;
@@ -66,7 +69,7 @@ export default function GamificationSettings({
           id="gamification-toggle"
           checked={enabled}
           onCheckedChange={handleMasterToggle}
-          disabled={isPending}
+          disabled={isPending || isOffline}
         />
       </div>
 
@@ -89,7 +92,7 @@ export default function GamificationSettings({
                 id={`gamification-${key}`}
                 checked={features[key]}
                 onCheckedChange={() => handleFeatureToggle(key)}
-                disabled={isPending}
+                disabled={isPending || isOffline}
               />
             </div>
           ))}

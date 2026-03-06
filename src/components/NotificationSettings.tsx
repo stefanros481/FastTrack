@@ -11,6 +11,7 @@ import {
 } from "@/lib/validators";
 import { Switch } from "@/components/ui/switch";
 import { WheelTimePicker } from "@/components/ui/wheel-time-picker";
+import { useConnection } from "@/contexts/ConnectionContext";
 
 interface NotificationSettingsProps {
   reminderEnabled: boolean;
@@ -29,6 +30,8 @@ export default function NotificationSettings({
     maxDurationMinutes ? String(maxDurationMinutes / 60) : ""
   );
   const [isPending, startTransition] = useTransition();
+  const connectionStatus = useConnection();
+  const isOffline = connectionStatus !== "online";
 
   const handleToggle = () => {
     const newEnabled = !enabled;
@@ -77,7 +80,7 @@ export default function NotificationSettings({
           id="reminder-toggle"
           checked={enabled}
           onCheckedChange={handleToggle}
-          disabled={isPending}
+          disabled={isPending || isOffline}
         />
       </div>
 
@@ -118,7 +121,7 @@ export default function NotificationSettings({
           placeholder="Off"
           value={maxHours}
           onChange={(e) => handleMaxDurationChange(e.target.value)}
-          disabled={isPending}
+          disabled={isPending || isOffline}
           className="w-20 min-h-11 px-3 rounded-xl bg-[--color-background] text-base text-center border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-[--color-primary]"
         />
       </div>

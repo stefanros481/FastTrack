@@ -38,7 +38,7 @@ import Toast from "@/components/Toast";
 import { useChartData } from "@/hooks/useChartData";
 import { useGoalNotification } from "@/hooks/useGoalNotification";
 import { useLongPress } from "@/hooks/useLongPress";
-import { useConnectionStatus } from "@/hooks/useConnectionStatus";
+import { useConnection } from "@/contexts/ConnectionContext";
 import ConnectionStatus from "@/components/ConnectionStatus";
 import GamificationOptIn from "@/components/GamificationOptIn";
 import CommunityView from "@/components/CommunityView";
@@ -154,7 +154,7 @@ function DashboardView({ stats }: { stats: FastingStats | null }) {
 }
 
 export default function FastingTimer({ activeFast, stats, defaultGoalMinutes, gamificationEnabled, gamificationAchievements = true }: Props) {
-  const connectionStatus = useConnectionStatus();
+  const connectionStatus = useConnection();
   const [showGamificationSplash, setShowGamificationSplash] = useState(gamificationEnabled === null);
   const showCommunityTab = gamificationEnabled === true && gamificationAchievements;
   const [view, setView] = useState<"timer" | "dashboard" | "history" | "community">("timer");

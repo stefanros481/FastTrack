@@ -7,6 +7,7 @@ import { sessionEditSchema } from "@/lib/validators";
 import { DateTimePicker } from "@/components/ui/date-time-picker";
 import NoteInput from "@/components/NoteInput";
 import DeleteConfirmation from "@/components/DeleteConfirmation";
+import ConnectionGuard from "@/components/ConnectionGuard";
 
 interface SessionData {
   id: string;
@@ -173,17 +174,19 @@ export default function SessionDetailModal({ session, onClose }: Props) {
         )}
 
         {/* Save button */}
-        <button
-          onClick={handleSave}
-          disabled={hasErrors || isPending}
-          className={`w-full py-4 rounded-full font-bold text-lg min-h-11 transition-all ${
-            hasErrors || isPending
-              ? "bg-slate-200 dark:bg-slate-800 text-slate-400 cursor-not-allowed"
-              : "bg-indigo-600 text-white hover:bg-indigo-700 active:scale-95"
-          }`}
-        >
-          {isPending ? "Saving..." : "Save"}
-        </button>
+        <ConnectionGuard>
+          <button
+            onClick={handleSave}
+            disabled={hasErrors || isPending}
+            className={`w-full py-4 rounded-full font-bold text-lg min-h-11 transition-all ${
+              hasErrors || isPending
+                ? "bg-slate-200 dark:bg-slate-800 text-slate-400 cursor-not-allowed"
+                : "bg-indigo-600 text-white hover:bg-indigo-700 active:scale-95"
+            }`}
+          >
+            {isPending ? "Saving..." : "Save"}
+          </button>
+        </ConnectionGuard>
 
         {/* Delete section */}
         <div className="mt-4 pt-4 border-t border-slate-200 dark:border-slate-800">
@@ -211,13 +214,15 @@ export default function SessionDetailModal({ session, onClose }: Props) {
               )}
             </>
           ) : (
-            <button
-              onClick={() => setShowDeleteConfirm(true)}
-              className="w-full flex items-center justify-center gap-2 py-3 text-[--color-error] min-h-11 transition-all active:scale-95"
-            >
-              <Trash2 size={16} />
-              <span>Delete Session</span>
-            </button>
+            <ConnectionGuard>
+              <button
+                onClick={() => setShowDeleteConfirm(true)}
+                className="w-full flex items-center justify-center gap-2 py-3 text-[--color-error] min-h-11 transition-all active:scale-95"
+              >
+                <Trash2 size={16} />
+                <span>Delete Session</span>
+              </button>
+            </ConnectionGuard>
           )}
         </div>
       </div>
