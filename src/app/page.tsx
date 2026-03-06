@@ -33,6 +33,7 @@ export default async function HomePage() {
         stats={stats}
         defaultGoalMinutes={defaultGoalMinutes}
         gamificationEnabled={gamificationSettings.enabled}
+        gamificationAchievements={gamificationSettings.achievements}
       />
     </ThemeProvider>
   );

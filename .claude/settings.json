@@ -24,7 +24,12 @@
       "Bash(/dev/null:*)",
       "Bash(git log --oneline --all --not main)",
       "Bash(git log --oneline HEAD --not main)",
-      "Bash(bash .specify/scripts/bash/check-prerequisites.sh --json --require-tasks --include-tasks)"
+      "Bash(bash .specify/scripts/bash/check-prerequisites.sh --json --require-tasks --include-tasks)",
+      "Read(//Users/stefan/code/FastTrack/**)",
+      "Bash(sort -t- -k1 -n)",
+      "Bash(bash /Users/stefan/code/FastTrack/.specify/scripts/bash/create-new-feature.sh --json --number 19 --short-name \"achievements\" \"Achievements and badges - personal milestone badges computed from fasting session history\")",
+      "Bash(bash /Users/stefan/code/FastTrack/.specify/scripts/bash/check-prerequisites.sh --json --paths-only)",
+      "Bash(bash .specify/scripts/bash/setup-plan.sh --json)"
     ],
     "additionalDirectories": [
       "/Users/stefan/code/FastTrack/scripts",

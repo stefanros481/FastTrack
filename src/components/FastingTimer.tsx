@@ -16,6 +16,7 @@ import {
   Sun,
   Monitor,
   Settings,
+  Users,
 } from "lucide-react";
 import Link from "next/link";
 import { startFast, stopFast, deleteSession, updateActiveStartTime } from "@/app/actions/fasting";
@@ -40,6 +41,7 @@ import { useLongPress } from "@/hooks/useLongPress";
 import { useConnectionStatus } from "@/hooks/useConnectionStatus";
 import ConnectionStatus from "@/components/ConnectionStatus";
 import GamificationOptIn from "@/components/GamificationOptIn";
+import CommunityView from "@/components/CommunityView";
 
 function useHydrated() {
   const [hydrated, setHydrated] = useState(false);
@@ -68,6 +70,7 @@ interface Props {
   stats: FastingStats | null;
   defaultGoalMinutes?: number | null;
   gamificationEnabled?: boolean | null;
+  gamificationAchievements?: boolean;
 }
 
 // --- Helpers ---
@@ -150,10 +153,11 @@ function DashboardView({ stats }: { stats: FastingStats | null }) {
   );
 }
 
-export default function FastingTimer({ activeFast, stats, defaultGoalMinutes, gamificationEnabled }: Props) {
+export default function FastingTimer({ activeFast, stats, defaultGoalMinutes, gamificationEnabled, gamificationAchievements = true }: Props) {
   const connectionStatus = useConnectionStatus();
   const [showGamificationSplash, setShowGamificationSplash] = useState(gamificationEnabled === null);
-  const [view, setView] = useState<"timer" | "dashboard" | "history">("timer");
+  const showCommunityTab = gamificationEnabled === true && gamificationAchievements;
+  const [view, setView] = useState<"timer" | "dashboard" | "history" | "community">("timer");
   const [goalMinutes, setGoalMinutes] = useState<number | null>(
     activeFast?.goalMinutes ?? null
   );
@@ -294,11 +298,21 @@ export default function FastingTimer({ activeFast, stats, defaultGoalMinutes, ga
                   : "Ready to start?"
                 : view === "dashboard"
                   ? "Insights"
-                  : "Log"}
+                  : view === "community"
+                    ? "Community"
+                    : "Log"}
             </p>
           </div>
         </div>
         <div className="flex items-center gap-2">
+          {showCommunityTab && (
+            <Link
+              href="/settings"
+              className="p-2 rounded-full text-slate-400 transition-colors min-h-11 min-w-11 flex items-center justify-center"
+            >
+              <Settings size={20} />
+            </Link>
+          )}
           <ConnectionStatus status={connectionStatus} />
           <ThemeToggle />
         </div>
@@ -422,6 +436,9 @@ export default function FastingTimer({ activeFast, stats, defaultGoalMinutes, ga
             <HistoryList />
           </div>
         )}
+
+        {/* --- COMMUNITY VIEW --- */}
+        {view === "community" && <CommunityView />}
       </main>
 
       {/* Gamification opt-in splash */}
@@ -469,7 +486,7 @@ export default function FastingTimer({ activeFast, stats, defaultGoalMinutes, ga
       <nav className="fixed bottom-0 left-0 right-0 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-t border-slate-200 dark:border-slate-800 flex justify-around p-4 pb-8 z-50">
         <button
           onClick={() => setView("timer")}
-          className={`flex flex-col items-center gap-1 transition-all ${view === "timer" ? "text-indigo-600 scale-110" : "text-slate-400"}`}
+          className={`flex flex-col items-center gap-1 transition-all min-h-11 min-w-11 ${view === "timer" ? "text-indigo-600 scale-110" : "text-slate-400"}`}
         >
           <Timer size={24} />
           <span className="text-[10px] font-bold uppercase tracking-tighter">
@@ -478,31 +495,44 @@ export default function FastingTimer({ activeFast, stats, defaultGoalMinutes, ga
         </button>
         <button
           onClick={() => setView("dashboard")}
-          className={`flex flex-col items-center gap-1 transition-all ${view === "dashboard" ? "text-indigo-600 scale-110" : "text-slate-400"}`}
+          className={`flex flex-col items-center gap-1 transition-all min-h-11 min-w-11 ${view === "dashboard" ? "text-indigo-600 scale-110" : "text-slate-400"}`}
         >
           <BarChart3 size={24} />
           <span className="text-[10px] font-bold uppercase tracking-tighter">
             Insights
           </span>
         </button>
+        {showCommunityTab && (
+          <button
+            onClick={() => setView("community")}
+            className={`flex flex-col items-center gap-1 transition-all min-h-11 min-w-11 ${view === "community" ? "text-indigo-600 scale-110" : "text-slate-400"}`}
+          >
+            <Users size={24} />
+            <span className="text-[10px] font-bold uppercase tracking-tighter">
+              Community
+            </span>
+          </button>
+        )}
         <button
           onClick={() => setView("history")}
-          className={`flex flex-col items-center gap-1 transition-all ${view === "history" ? "text-indigo-600 scale-110" : "text-slate-400"}`}
+          className={`flex flex-col items-center gap-1 transition-all min-h-11 min-w-11 ${view === "history" ? "text-indigo-600 scale-110" : "text-slate-400"}`}
         >
           <History size={24} />
           <span className="text-[10px] font-bold uppercase tracking-tighter">
             Log
           </span>
         </button>
-        <Link
-          href="/settings"
-          className="flex flex-col items-center gap-1 transition-all text-slate-400"
-        >
-          <Settings size={24} />
-          <span className="text-[10px] font-bold uppercase tracking-tighter">
-            Settings
-          </span>
-        </Link>
+        {!showCommunityTab && (
+          <Link
+            href="/settings"
+            className="flex flex-col items-center gap-1 transition-all min-h-11 min-w-11 text-slate-400"
+          >
+            <Settings size={24} />
+            <span className="text-[10px] font-bold uppercase tracking-tighter">
+              Settings
+            </span>
+          </Link>
+        )}
       </nav>
     </div>
   );
