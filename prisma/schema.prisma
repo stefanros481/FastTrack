@@ -35,9 +35,7 @@ model FastingSession {
 model UserSettings {
   id                 String  @id @default(cuid())
   defaultGoalMinutes Int?
-  reminderEnabled    Boolean @default(false)
-  reminderTime       String?
-  maxDurationMinutes Int?
+  maxDurationMinutes Int    @default(720)
   theme              String  @default("dark")
 
   gamificationEnabled      Boolean?

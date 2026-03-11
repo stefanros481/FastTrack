@@ -6,13 +6,13 @@ import {
   getUserProfile,
   getTheme,
   getDefaultGoal,
-  getNotificationSettings,
+  getSafetySettings,
   getGamificationSettings,
 } from "@/app/actions/settings";
 import ThemeProvider from "@/components/ThemeProvider";
 import UserProfile from "@/components/UserProfile";
 import DefaultGoalSetting from "@/components/DefaultGoalSetting";
-import NotificationSettings from "@/components/NotificationSettings";
+import SafetySettings from "@/components/SafetySettings";
 import GamificationSettings from "@/components/GamificationSettings";
 import SignOutButton from "@/components/SignOutButton";
 
@@ -20,8 +20,8 @@ export default async function SettingsPage() {
   const session = await auth();
   if (!session) redirect("/auth/signin");
 
-  const [profile, theme, defaultGoal, notificationSettings, gamificationSettings] = await Promise.all(
-    [getUserProfile(), getTheme(), getDefaultGoal(), getNotificationSettings(), getGamificationSettings()]
+  const [profile, theme, defaultGoal, safetySettings, gamificationSettings] = await Promise.all(
+    [getUserProfile(), getTheme(), getDefaultGoal(), getSafetySettings(), getGamificationSettings()]
   );
 
   return (
@@ -59,16 +59,14 @@ export default async function SettingsPage() {
             </div>
           </section>
 
-          {/* Notifications Section */}
+          {/* Safety Section */}
           <section>
             <h2 className="text-xl font-semibold text-[--color-text] mb-3">
-              Notifications
+              Safety
             </h2>
             <div className="bg-[--color-card] rounded-2xl p-4">
-              <NotificationSettings
-                reminderEnabled={notificationSettings.reminderEnabled}
-                reminderTime={notificationSettings.reminderTime}
-                maxDurationMinutes={notificationSettings.maxDurationMinutes}
+              <SafetySettings
+                maxDurationMinutes={safetySettings.maxDurationMinutes}
               />
             </div>
           </section>
