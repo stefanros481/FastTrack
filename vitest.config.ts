@@ -14,7 +14,6 @@ export default defineConfig({
       include: [
         "src/app/actions/**",
         "src/lib/validators.ts",
-        "src/lib/authorized-emails.ts",
         "src/hooks/**",
         "src/app/api/**",
       ],

@@ -1,7 +1,7 @@
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Shield, ChevronRight } from "lucide-react";
 import {
   getUserProfile,
   getTheme,
@@ -88,6 +88,25 @@ export default async function SettingsPage() {
               />
             </div>
           </section>
+
+          {/* Admin Section */}
+          {session.user.role === "admin" && (
+            <section>
+              <h2 className="text-xl font-semibold text-[--color-text] mb-3">
+                Admin
+              </h2>
+              <Link
+                href="/settings/admin"
+                className="bg-[--color-card] rounded-2xl p-4 flex items-center gap-3 min-h-11"
+              >
+                <Shield size={20} className="text-amber-600 dark:text-amber-400" />
+                <span className="flex-1 text-sm font-semibold text-[--color-text]">
+                  User Management
+                </span>
+                <ChevronRight size={16} className="text-[--color-text-muted]" />
+              </Link>
+            </section>
+          )}
 
           {/* Account Section */}
           <section>

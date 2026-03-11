@@ -1,8 +1,7 @@
 <!--
 Sync Impact Report
-Version change: 1.0.0 → 2.0.0
-Modified principles: II. Security by Default (single-user → multi-user allowlist, up to 5)
-Modified principles: V. Premium Simplicity (PRD v2.0 → v2.1 reference)
+Version change: 2.0.0 → 2.1.0
+Modified principles: II. Security by Default (env-based allowlist → database-driven role and active-status system with configurable user cap)
 Templates requiring updates:
   ✅ plan-template.md — Constitution Check section present; gates align with 5 principles below
   ✅ spec-template.md — no structural changes required
@@ -29,16 +28,17 @@ start/stop flow breaks the habit loop. Every added tap has a real cost.
 All routes except `/auth/*` and `/api/auth/*` MUST be protected by `middleware.ts`. Server
 actions and API routes MUST verify the authenticated session via `auth()` before executing any
 logic. All database queries MUST be scoped to the authenticated `userId` — no cross-user data
-access is ever acceptable. Access MUST be restricted to up to 5 email addresses listed in
-`AUTHORIZED_EMAILS` (comma-separated); any email not in the allowlist MUST be rejected at the
-sign-in callback level. The middleware MUST re-validate the user's email against the allowlist
-on every request, ensuring immediate revocation when an email is removed. Each user's data
-MUST be fully isolated — no user can access another user's sessions, settings, or statistics.
-No public-facing API endpoints MUST exist.
+access is ever acceptable. Access MUST be controlled by a database-driven role and active-status
+system with a configurable user cap (`MAX_USERS` env var, default 200). New users are registered
+on first sign-in up to the cap; deactivated users (`isActive: false`) MUST be blocked at the
+middleware level on every request, ensuring immediate revocation. Admin-role users MAY access
+user management data (user list, role, active status) but MUST NOT access other users' fasting
+sessions, settings, or statistics. Each user's data MUST be fully isolated — no user can access
+another user's sessions, settings, or statistics. No public-facing API endpoints MUST exist.
 
-**Rationale**: This is a health data app shared by a small trusted group. A single unauthorized
-access or cross-user data leak is an unacceptable failure. Defense must be layered (middleware +
-action-level checks + per-user query scoping).
+**Rationale**: This is a health data app. A single unauthorized access or cross-user data leak
+is an unacceptable failure. Defense must be layered (middleware + action-level checks + per-user
+query scoping).
 
 ### III. Server-First Architecture
 
@@ -123,4 +123,4 @@ gates to principles I–V before Phase 0 research begins, and re-checks after Ph
 
 **Runtime guidance**: See `CLAUDE.md` at the repository root for agent-specific conventions.
 
-**Version**: 2.0.0 | **Ratified**: 2026-02-22 | **Last Amended**: 2026-02-27
+**Version**: 2.1.0 | **Ratified**: 2026-02-22 | **Last Amended**: 2026-03-11
