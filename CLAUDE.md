@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**FastTrack** is a mobile-first fasting tracker web app for up to 5 authorized users. Core workflow: start a fast, stop a fast, review history. Built for personal deployment on Vercel.
+**FastTrack** is a mobile-first fasting tracker web app with open user registration (up to 200 users, configurable via `MAX_USERS`). Core workflow: start a fast, stop a fast, review history. Built for personal deployment on Vercel.
 
 ## Tech Stack
 
@@ -24,15 +24,23 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 - Google OAuth as primary provider; GitHub as optional secondary
 - JWT session strategy (stateless, no session table)
-- Up to 5 authorized users: `AUTHORIZED_EMAILS` env var (comma-separated) — all other emails are rejected. Fallback to `AUTHORIZED_EMAIL` (singular) for backward compatibility
+- Open registration: any Google user can sign up (up to `MAX_USERS` env var, default 200)
+- Database-driven authorization: `User.role` ("admin"/"user") and `User.isActive` (boolean)
+- First user on fresh deploy auto-becomes admin; auto-admin bootstrap on existing deploys too
 - `middleware.ts` at project root protects all routes except `/auth/*`, `/api/auth/*`, `/_next/*`, `/favicon.ico`, `/robots.txt`
-- Per-request email allowlist validation in middleware `authorized` callback
+- Per-request DB active-status check in middleware `authorized` callback — deactivation takes effect immediately
+- JWT carries `role` and `isActive` for fast server-component checks; DB is authoritative
 - JWT session duration: 30 days with sliding window refresh
 - Each user's data is fully isolated — all queries scoped by `userId`
+- Admin users can manage users (view, deactivate/reactivate, promote/demote) from Settings > User Management
 
-**Required env vars:** `AUTH_SECRET`, `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET`, `AUTHORIZED_EMAILS`, `fast_track_DATABASE_URL_UNPOOLED`
+**Required env vars:** `AUTH_SECRET`, `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET`, `fast_track_DATABASE_URL_UNPOOLED`
 
-**Key auth files:** `src/lib/auth.ts`, `src/lib/auth.config.ts`, `src/lib/authorized-emails.ts`, `middleware.ts`, `src/app/auth/signin/page.tsx`, `src/app/api/auth/[...nextauth]/route.ts`
+**Optional env vars:** `MAX_USERS` (default: 200)
+
+**Deprecated env vars (no longer used):** `AUTHORIZED_EMAILS`, `AUTHORIZED_EMAIL`
+
+**Key auth files:** `src/lib/auth.ts`, `src/lib/auth.config.ts`, `middleware.ts`, `src/app/auth/signin/page.tsx`, `src/app/api/auth/[...nextauth]/route.ts`, `src/app/actions/admin.ts`, `src/app/settings/admin/page.tsx`
 
 ## Settings Page
 
@@ -150,6 +158,8 @@ Reference PRD: `docs/FastTrack_PRD_v2.md`
 - Vercel Postgres (PostgreSQL) via Prisma 7 — existing `FastingSession` and `UserSettings` models (no schema changes). localStorage for celebration-seen state. (019-achievements)
 - TypeScript 5 / Node.js 18+ + Next.js 16 (App Router), React 19, Auth.js v5 (next-auth@beta), Prisma 7, Tailwind CSS v4, Lucide Reac (020-backend-readiness)
 - Vercel Postgres (PostgreSQL) via Prisma 7 -- existing `User`, `UserSettings`, `FastingSession` models (no schema changes) (020-backend-readiness)
+- TypeScript 5 / Node.js 18+ + Next.js 16 (App Router), React 19, Auth.js v5 (next-auth@beta), Prisma 7, Tailwind CSS v4, Zod 4, Lucide Reac (022-open-user-registration)
+- Vercel Postgres (PostgreSQL) via Prisma 7 — existing `User`, `UserSettings`, `FastingSession` models (022-open-user-registration)
 
 ## Recent Changes
 - 001-authentication: Added TypeScript 5 / Node.js 18+ + Next.js 14+ (App Router), Auth.js v5 (next-auth@beta), Prisma, Vercel Postgres

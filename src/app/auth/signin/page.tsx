@@ -1,5 +1,4 @@
 import { signIn } from "@/lib/auth";
-import { getAuthorizedEmails } from "@/lib/authorized-emails";
 import { Flame, Timer, BarChart3, Zap } from "lucide-react";
 
 interface Props {
@@ -10,7 +9,9 @@ export default async function SignInPage({ searchParams }: Props) {
   const { error } = await searchParams;
 
   const isAccessDenied = error === "AccessDenied";
-  const isOAuthError = error && !isAccessDenied;
+  const isRegistrationClosed = error === "RegistrationClosed";
+  const isAccountInactive = error === "AccountInactive";
+  const isOAuthError = error && !isAccessDenied && !isRegistrationClosed && !isAccountInactive;
 
   return (
     <main className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center px-4">
@@ -96,16 +97,13 @@ export default async function SignInPage({ searchParams }: Props) {
               }}
               className="mt-3"
             >
-              <select
+              <input
+                type="email"
                 name="email"
+                placeholder="dev@example.com"
+                required
                 className="w-full mb-2 rounded-2xl min-h-12 px-4 border border-amber-300 bg-amber-50 text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-amber-500"
-              >
-                {getAuthorizedEmails().map((email) => (
-                  <option key={email} value={email}>
-                    {email}
-                  </option>
-                ))}
-              </select>
+              />
               <button
                 type="submit"
                 className="w-full bg-amber-600 text-white rounded-2xl min-h-12 px-6 font-semibold hover:bg-amber-700 transition-colors flex items-center justify-center gap-2"
@@ -120,7 +118,21 @@ export default async function SignInPage({ searchParams }: Props) {
         {isAccessDenied && (
           <div className="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900 rounded-2xl p-4 text-center animate-shake">
             <p className="text-red-600 dark:text-red-400 text-sm font-medium">
-              This app is private. Access denied.
+              Access denied.
+            </p>
+          </div>
+        )}
+        {isRegistrationClosed && (
+          <div className="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900 rounded-2xl p-4 text-center animate-shake">
+            <p className="text-red-600 dark:text-red-400 text-sm font-medium">
+              Registration is currently closed.
+            </p>
+          </div>
+        )}
+        {isAccountInactive && (
+          <div className="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900 rounded-2xl p-4 text-center animate-shake">
+            <p className="text-red-600 dark:text-red-400 text-sm font-medium">
+              Your account has been deactivated. Contact the app admin.
             </p>
           </div>
         )}
@@ -134,7 +146,7 @@ export default async function SignInPage({ searchParams }: Props) {
 
         {/* Footer */}
         <p className="text-center text-xs text-slate-400 mt-6">
-          Private app — authorized accounts only
+          Sign in with your Google account to get started
         </p>
       </div>
     </main>
