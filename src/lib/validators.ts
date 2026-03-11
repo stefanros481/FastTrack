@@ -51,17 +51,11 @@ export const customGoalHoursSchema = z.number().min(1).max(72).positive();
 
 export const themeSchema = z.enum(["dark", "light", "system"]);
 
-export const reminderTimeSchema = z
-  .string()
-  .regex(/^\d{2}:\d{2}$/, "Invalid time format. Expected HH:MM")
-  .nullable();
-
 export const maxDurationMinutesSchema = z
   .number()
   .int()
   .min(60, "Must be at least 60 minutes (1 hour)")
-  .max(4320, "Must be at most 4320 minutes (72 hours)")
-  .nullable();
+  .max(4320, "Must be at most 4320 minutes (72 hours)");
 
 export const gamificationSettingsSchema = z.object({
   enabled: z.boolean().optional(),

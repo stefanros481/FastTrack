@@ -6,7 +6,6 @@ import {
   goalMinutesSchema,
   customGoalHoursSchema,
   themeSchema,
-  reminderTimeSchema,
   maxDurationMinutesSchema,
   activeStartTimeSchema,
   MIN_FAST_MINUTES,
@@ -202,30 +201,14 @@ describe("themeSchema", () => {
   });
 });
 
-describe("reminderTimeSchema", () => {
-  it("accepts valid HH:MM format", () => {
-    expect(reminderTimeSchema.safeParse("08:30").success).toBe(true);
-    expect(reminderTimeSchema.safeParse("23:59").success).toBe(true);
-  });
-
-  it("accepts null", () => {
-    expect(reminderTimeSchema.safeParse(null).success).toBe(true);
-  });
-
-  it("rejects invalid format", () => {
-    expect(reminderTimeSchema.safeParse("8:30").success).toBe(false);
-    expect(reminderTimeSchema.safeParse("abc").success).toBe(false);
-  });
-});
-
 describe("maxDurationMinutesSchema", () => {
   it("accepts 60-4320 range", () => {
     expect(maxDurationMinutesSchema.safeParse(60).success).toBe(true);
     expect(maxDurationMinutesSchema.safeParse(4320).success).toBe(true);
   });
 
-  it("accepts null", () => {
-    expect(maxDurationMinutesSchema.safeParse(null).success).toBe(true);
+  it("rejects null", () => {
+    expect(maxDurationMinutesSchema.safeParse(null).success).toBe(false);
   });
 
   it("rejects below 60", () => {

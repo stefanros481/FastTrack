@@ -44,15 +44,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Settings Page
 
-Settings page at `/settings` with sections: Profile, Fasting, Notifications, Appearance, Account.
+Settings page at `/settings` with sections: Profile, Fasting, Safety, Community, Account.
 
 **Key files:**
 - `src/app/settings/page.tsx` — server component, fetches all settings data
-- `src/app/actions/settings.ts` — server actions: getUserProfile, getTheme, updateTheme, getDefaultGoal, updateDefaultGoal, getNotificationSettings, updateReminderSettings, updateMaxDuration
+- `src/app/actions/settings.ts` — server actions: getUserProfile, getTheme, updateTheme, getDefaultGoal, updateDefaultGoal, getSafetySettings, updateMaxDuration
 - `src/components/UserProfile.tsx` — avatar (Google image or letter fallback) + name + email
 - `src/components/ThemeSelector.tsx` — 3-button segmented control (dark/system/light), uses ThemeProvider context
 - `src/components/DefaultGoalSetting.tsx` — preset + custom goal selection
-- `src/components/NotificationSettings.tsx` — reminder toggle, time picker, max duration alert
+- `src/components/SafetySettings.tsx` — max duration alert slider (default: 12h / 720 min, range: 1–72h)
 - `src/components/SignOutButton.tsx` — sign out with redirect to sign-in page
 
 ## Spinning Wheel Pickers
@@ -61,11 +61,10 @@ All date/time selection uses iOS-style spinning wheel pickers via `@ncdai/react-
 
 **Key files:**
 - `src/components/ui/wheel-date-time-picker.tsx` — 3-drum picker (date/hour/minute) for session editing and active start time
-- `src/components/ui/wheel-time-picker.tsx` — 2-drum picker (hour/minute) for notification reminder time
 - `src/app/actions/fasting.ts` — `updateActiveStartTime` server action for editing active session start time
 - `src/lib/validators.ts` — `activeStartTimeSchema` Zod validation (startedAt must be in past, no overlap)
 
-**Usage:** Active fast start time is tappable in `FastingTimer.tsx`. Session start/end times editable in `SessionDetailModal.tsx`. Notification time in `NotificationSettings.tsx`.
+**Usage:** Active fast start time is tappable in `FastingTimer.tsx`. Session start/end times editable in `SessionDetailModal.tsx`.
 
 ## Design System
 
@@ -160,6 +159,8 @@ Reference PRD: `docs/FastTrack_PRD_v2.md`
 - Vercel Postgres (PostgreSQL) via Prisma 7 -- existing `User`, `UserSettings`, `FastingSession` models (no schema changes) (020-backend-readiness)
 - TypeScript 5 / Node.js 18+ + Next.js 16 (App Router), React 19, Auth.js v5 (next-auth@beta), Prisma 7, Tailwind CSS v4, Zod 4, Lucide Reac (022-open-user-registration)
 - Vercel Postgres (PostgreSQL) via Prisma 7 — existing `User`, `UserSettings`, `FastingSession` models (022-open-user-registration)
+- TypeScript 5 / Node.js 18+ + Next.js 16 (App Router), React 19, Prisma 7, Tailwind CSS v4, Zod 4 (022-remove-reminders)
+- Vercel Postgres (PostgreSQL) via Prisma — removing `reminderEnabled` and `reminderTime` from `UserSettings` model (022-remove-reminders)
 
 ## Recent Changes
 - 001-authentication: Added TypeScript 5 / Node.js 18+ + Next.js 14+ (App Router), Auth.js v5 (next-auth@beta), Prisma, Vercel Postgres
